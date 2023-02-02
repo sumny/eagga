@@ -13,6 +13,11 @@ learner = lrn("classif.featureless")
 ids = c(37, 43, 3903, 3913, 3904, 3918, 10093, 9946, 146819, 359955, 189922, 359962, 190392, 167120, 190137, 190410, 168350, 359975, 359972, 146820)
 tasks = map(ids, function(id) {
   task = tsk("oml", task_id = id)
+  if (id == 3904) {
+    tmp = task$data()
+    tmp = na.omit(tmp)
+    task = TaskClassif$new(id = task$id, backend = tmp, target = task$target_names)
+  }
   task
 })
 
