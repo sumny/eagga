@@ -1,0 +1,10 @@
+*.png
+*.pdf
+.Rprofile
+batchtools.conf.R
+renv.lock
+renv/
+slurm_wyoming.tmpl
+*.rds
+notes.txt
+
