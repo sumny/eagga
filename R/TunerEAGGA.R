@@ -149,7 +149,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
         # update the groupstructure (x space)
         groupstructure = inst$archive$data[j, ][["groupstructure"]][[1L]]$clone(deep = TRUE)
         groupstructure_orig = groupstructure$clone(deep = TRUE)
-        inst$archive$data[j, groupstructure_orig := list(groupstructure_orig)]
+        set(inst$archive$data, i = j, j = "groupstructure_orig", value = list(groupstructure_orig))
         groupstructure = update_sIm(groupstructure, used = proxy_measures$used, belonging = proxy_measures$belonging)
 
         inst$archive$data[j, ][["groupstructure"]][[1L]] = groupstructure
@@ -235,7 +235,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
           parents[[2L]][[monotone_id]] = groupstructure2$create_monotonicity_constraints()
 
           parents_table = rbindlist(map(parents, function(parent) parent[param_ids]))
-          parents_table[, groupstructure := map(parents, function(parent) parent[["groupstructure"]])]
+          set(parents_table, j = "groupstructure", value = map(parents, function(parent) parent[["groupstructure"]]))
           parents_table[, eval(select_id) := map(parents, function(parent) parent[[select_id]])]
           parents_table[, eval(interaction_id) := map(parents, function(parent) parent[[interaction_id]])]
           parents_table[, eval(monotone_id) := map(parents, function(parent) parent[[monotone_id]])]
@@ -262,7 +262,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
           # update the groupstructure (x space)
           groupstructure = inst$archive$data[j, ][["groupstructure"]][[1L]]$clone(deep = TRUE)
           groupstructure_orig = groupstructure$clone(deep = TRUE)
-          inst$archive$data[j, groupstructure_orig := list(groupstructure_orig)]
+          set(inst$archive$data, i = j, j = "groupstructure_orig", value = list(groupstructure_orig))
           groupstructure = update_sIm(groupstructure, used = proxy_measures$used, belonging = proxy_measures$belonging)
 
           inst$archive$data[j, ][["groupstructure"]][[1L]] = groupstructure
