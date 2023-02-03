@@ -49,7 +49,7 @@ eval_ = function(job, data, instance, ...) {
   task_train = task$clone(deep = TRUE)$filter(rows = train_set)
   task_test = task$clone(deep = TRUE)$filter(rows = test_set)
   resampling_inner = rsmp("cv", folds = 5L)$instantiate(task_train)  # changed
-  secs = 12L * 3600L
+  secs = 8L * 3600L
  
   method = job$algo.pars$method
   set.seed(job$seed) 
@@ -122,7 +122,7 @@ resources.serial.default = list(max.concurrent.jobs = 9999L, ncpus = 1L)
 jobs = getJobTable()
 jobs[, memory := 1024L * 48L]
 jobs[(problem == 11 | problem == 13 | problem == 14 | problem == 16), memory := 1024L * 64L]
-jobs[, walltime := 24L * 3600L]
+jobs[, walltime := 16L * 3600L]
 jobs[tags == "rf", memory := 1024L * 16L]
 jobs[tags == "rf", walltime := 3600L]
 
@@ -130,7 +130,7 @@ submitJobs(jobs, resources = resources.serial.default)
 
 expired = jobs[job.id %in% findExpired()$job.id]
 
-submitJobs(expired, resources = resources.serial.default)  # for these 40 ebm the initial BO design took more than 12h so we fallback; 11, 13, 16, 19
+submitJobs(expired, resources = resources.serial.default)  # for these 40 ebm the initial BO design took more than 8h so we fallback; 11, 13, 16, 19
 
 #######################################################################################################################################################################################################
 

@@ -49,7 +49,7 @@ eval_ = function(job, data, instance, ...) {
   task_train = task$clone(deep = TRUE)$filter(rows = train_set)
   task_test = task$clone(deep = TRUE)$filter(rows = test_set)
   resampling_inner = rsmp("cv", folds = 5L)$instantiate(task_train)  # changed
-  secs = 12L * 3600L
+  secs = 8L * 3600L
  
   method = job$algo.pars$method
   # EAGGA: (crossover FALSE, mutation FALSE, both FALSE, both TRUE) x use_detectors (TRUE / FALSE); both TRUE + use_detectors TRUE not needed
@@ -123,7 +123,7 @@ resources.serial.default = list(max.concurrent.jobs = 9999L, ncpus = 1L)
 jobs = getJobTable()
 jobs[, memory := 1024L * 48L]
 jobs[(problem == 11 | problem == 13 | problem == 14 | problem == 16), memory := 1024L * 64L]
-jobs[, walltime := 24L * 3600L]
+jobs[, walltime := 16L * 3600L]
 
 submitJobs(jobs[tags == "xgboost_mo", ], resources = resources.serial.default)
 submitJobs(jobs[tags == "eagga_ablation", ], resources = resources.serial.default)

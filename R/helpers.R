@@ -69,13 +69,14 @@ get_actual_interactions = function(features, pairs) {
     I[js, i] = 1L
   }
   diag(I) = 1L
-  n_interactions = sum(I[upper.tri(I)])  # number of actual pairwise interactions
+  n_interactions_unclosed = sum(I[upper.tri(I)])  # number of actual pairwise interactions
   rel = transitive_closure(relation(list(features, features), incidence = I))
   I = relation_incidence(rel)[features, features, drop = FALSE]
   belonging = get_class_ids_from_incidence(I)
   # NOTE: I must not be transitive but we should not violate transitivity in the feedback loop
   #       Therefore the groupstructure is always based on transitivity closure
-  list(n_interactions = n_interactions, n_interactions_closed = sum(I[upper.tri(I)]), I = I, belonging = belonging)
+  #       we use n_interactions instead of n_interactions_unclosed to penalize higher-order interactions directly
+  list(n_interactions = sum(I[upper.tri(I)]), n_interactions_unclosed = n_interactions_unclosed, I = I, belonging = belonging)
 }
 
 # actual features used by a xgboost model (trained on the whole tuning task)
