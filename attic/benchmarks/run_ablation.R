@@ -126,7 +126,16 @@ jobs[(problem == 11 | problem == 13 | problem == 14 | problem == 16), memory := 
 jobs[, walltime := 16L * 3600L]
 
 submitJobs(jobs[tags == "xgboost_mo", ], resources = resources.serial.default)
-submitJobs(jobs[tags == "eagga_ablation", ], resources = resources.serial.default)
+random = map_lgl(seq_len(nrow(jobs)), function(i) isTRUE(jobs[i, ]$algo.pars[[1L]]$detectors == TRUE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$random == TRUE))
+no_detectors = map_lgl(seq_len(nrow(jobs)), function(i) isTRUE(jobs[i, ]$algo.pars[[1L]]$crossover == TRUE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$mutation == TRUE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$detectors == FALSE))
+no_crossover = map_lgl(seq_len(nrow(jobs)), function(i) isTRUE(jobs[i, ]$algo.pars[[1L]]$crossover == FALSE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$mutation == TRUE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$detectors == TRUE))
+no_mutation = map_lgl(seq_len(nrow(jobs)), function(i) isTRUE(jobs[i, ]$algo.pars[[1L]]$crossover == TRUE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$mutation == FALSE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$detectors == TRUE))
+no_crossover_mutation = map_lgl(seq_len(nrow(jobs)), function(i) isTRUE(jobs[i, ]$algo.pars[[1L]]$crossover == FALSE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$mutation == FALSE) & isTRUE(jobs[i, ]$algo.pars[[1L]]$detectors == TRUE))
+submitJobs(jobs[random, ], resources = resources.serial.default)
+submitJobs(jobs[no_detectors, ], resources = resources.serial.default)
+submitJobs(jobs[no_crossover, ], resources = resources.serial.default)
+submitJobs(jobs[no_mutation, ], resources = resources.serial.default)
+submitJobs(jobs[no_crossover_mutation, ], resources = resources.serial.default)
 
 #######################################################################################################################################################################################################
 
