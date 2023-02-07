@@ -441,16 +441,21 @@ nested_resampling_eagga_ablation = function(task_train, task_test, resampling_in
   orig_pvs = instance$objective$learner$param_set$values
   for (p in seq_len(NROW(pareto))) {
     groupstructure = pareto[p, ][["groupstructure"]][[1L]]
-    xdt = copy(pareto[p, ])
-    xdt[["groupstructure"]][[1L]] = groupstructure
-    xdt[[tuner$param_set$values$select_id]][[1L]] = groupstructure$create_selector()
-    xdt[[tuner$param_set$values$interaction_id]][[1L]] = groupstructure$create_interaction_constraints()
-    xdt[[tuner$param_set$values$monotone_id]][[1L]] = groupstructure$create_monotonicity_constraints()
-    xss = transform_xdt_to_xss(xdt, search_space = instance$search_space)[[1L]]
-    xss = insert_named(orig_pvs, xss)
-    learner_on_test$param_set$values = xss
-    learner_on_test$train(task_train)
-    pareto[p, auc_test := learner_on_test$predict(task_test)$score(msr("classif.auc"))]
+    # during a random search it can happen that zero selected (after updating) is still Pareto optimal
+    if (groupstructure$n_selected > 0L) {
+      xdt = copy(pareto[p, ])
+      xdt[["groupstructure"]][[1L]] = groupstructure
+      xdt[[tuner$param_set$values$select_id]][[1L]] = groupstructure$create_selector()
+      xdt[[tuner$param_set$values$interaction_id]][[1L]] = groupstructure$create_interaction_constraints()
+      xdt[[tuner$param_set$values$monotone_id]][[1L]] = groupstructure$create_monotonicity_constraints()
+      xss = transform_xdt_to_xss(xdt, search_space = instance$search_space)[[1L]]
+      xss = insert_named(orig_pvs, xss)
+      learner_on_test$param_set$values = xss
+      learner_on_test$train(task_train)
+      pareto[p, auc_test := learner_on_test$predict(task_test)$score(msr("classif.auc"))]
+    } else {
+      pareto[p, auc_test := 0.5]  # zero selected, i.e., featureless will be AUC of 0.5
+    }
     # proxy measures must not be updated because they were already determined on the task_train during tuning
   }
 
