@@ -63,8 +63,8 @@ eval_ = function(job, data, instance, ...) {
   } else if (method == "ebm") {
     reticulate::use_condaenv("EBmlr3", required = TRUE)
     library(EBmlr3)
-    nested_resampling_ebm(task_train, task_test = task_test, resampling_inner = resampling_inner, secs = secs)
-    #nested_resampling_ebm_fallback(task_train, task_test = task_test, resampling_inner = resampling_inner, secs = secs)
+    #nested_resampling_ebm(task_train, task_test = task_test, resampling_inner = resampling_inner, secs = secs)
+    nested_resampling_ebm_fallback(task_train, task_test = task_test, resampling_inner = resampling_inner, secs = secs)
   } else if (method == "glmnet") {
     nested_resampling_glmnet(task_train, task_test = task_test, resampling_inner = resampling_inner, secs = secs)
   } else if (method == "rf") {
@@ -125,12 +125,13 @@ jobs[(problem == 11 | problem == 13 | problem == 14 | problem == 16), memory := 
 jobs[, walltime := 16L * 3600L]
 jobs[tags == "rf", memory := 1024L * 16L]
 jobs[tags == "rf", walltime := 3600L]
+jobs[tags == "ebm" & problem %in% c(, walltime := 3600L]
 
 submitJobs(jobs, resources = resources.serial.default)
 
-expired = jobs[job.id %in% findExpired()$job.id]
-
-submitJobs(expired, resources = resources.serial.default)  # for these 40 ebm the initial BO design took more than 8h so we fallback; 11, 13, 16, 19
+# for the following tasks, ebm initial design took longer than the already generous 16h at least one time: 2, 5, 7, 8, 11, 13, 14, 15, 16, 17, 19, 20
+# for 15, 5 and 8 we increase the walltime to 24 hours to see if it helps
+# for the other ones we fallback to only evaluating the default
 
 #######################################################################################################################################################################################################
 

@@ -137,6 +137,9 @@ submitJobs(jobs[no_crossover, ], resources = resources.serial.default)
 submitJobs(jobs[no_mutation, ], resources = resources.serial.default)
 submitJobs(jobs[no_crossover_mutation, ], resources = resources.serial.default)
 
+# for the task 14, xgboost_mo initial design took longer than the already geneours 16h at least one time
+# therefore we increased to 24 hours to see if it helps
+
 #######################################################################################################################################################################################################
 
 tab = getJobTable()
