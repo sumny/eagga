@@ -5,10 +5,10 @@ Authors@R: c(
     person("Lennart", "Schneider", , "lennart.sch@web.de", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0003-4152-5308"))
   )
-Description: GA GGA.
+Description: EA GGA.
 License: GPL (>= 3)
 Depends:
-  R (>= 3.1.0),
+  R (>= 3.5.0),
   mlr3tuning
 Imports:
   backports,

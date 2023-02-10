@@ -53,7 +53,7 @@ eval_ = function(job, data, instance, ...) {
  
   method = job$algo.pars$method
   # EAGGA: (crossover FALSE, mutation FALSE, both FALSE, both TRUE) x use_detectors (TRUE / FALSE); both TRUE + use_detectors TRUE not needed
-  #       random (TRUE, FALSE) x use_detectors (TRUE, FALSE); random FALSE + use_detectors TRUE not needed
+  #        random (TRUE, FALSE) x use_detectors (TRUE, FALSE); random FALSE + use_detectors TRUE not needed
   crossover = isTRUE(job$algo.pars$crossover)
   mutation = isTRUE(job$algo.pars$mutation)
   random = isTRUE(job$algo.pars$random)
