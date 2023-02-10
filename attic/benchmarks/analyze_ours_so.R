@@ -135,7 +135,7 @@ mean_best = best[, .(mean_auc_test = mean(auc_test), se_auc_test = sd(auc_test) 
                      mean_selected_non_monotone_proxy = mean(selected_non_monotone_proxy), se_selected_non_monotone_proxy = sd(selected_non_monotone_proxy) / sqrt(.N)), by = .(method, task_id)]
 mean_best[, mf := as.numeric(as.factor(method)), by = .(task_id)]
 mean_best[, text_space := mf + 0.5]
-mean_best[, method := factor(method, labels = c("EBM", "EAGGA_XGBoost", "EAGGA_XGBoost_md2", "Elastic Net", "RF", "XGBoost"))]
+mean_best[, method := factor(method, levels = c("eagga", "eagga_md2", "ebm", "glmnet", "rf", "xgboost"), labels = c("EAGGA_XGBoost", "EAGGA_XGBoost_md2", "EBM", "Elastic Net", "RF", "XGBoost"))]
 
 g = ggplot(aes(x = method, y = mean_auc_test, colour = method), data = mean_best) +
   geom_point() +
@@ -143,7 +143,7 @@ g = ggplot(aes(x = method, y = mean_auc_test, colour = method), data = mean_best
   geom_text(aes(x = text_space, y = mean_auc_test, label = paste0(format(round(mean_selected_features_proxy, 2), nsmall = 2), "/", format(round(mean_selected_interactions_proxy, 2), nsmall = 2), "/", format(round(mean_selected_non_monotone_proxy, 2), nsmall = 2))), size = 1.75) +
   facet_wrap(~ task_id, scales = "free", nrow = 5, ncol = 4) +
   labs(y = "Mean AUC", x = "", colour = "Method") +
-  scale_x_discrete(breaks = NULL, limits = c("EBM", "EAGGA_XGBoost", "EAGGA_XGBoost_md2", "Elastic Net", "RF", "XGBoost", "")) +
+  scale_x_discrete(breaks = NULL, limits = c("EAGGA_XGBoost", "EAGGA_XGBoost_md2", "EBM", "Elastic Net", "RF", "XGBoost", "")) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 60), legend.position = "bottom")
 
@@ -151,22 +151,6 @@ mean_mean_best = mean_best[, .(mean_auc_test = mean(mean_auc_test), se_auc_test 
                                mean_selected_features_proxy = mean(mean_selected_features_proxy), se_selected_features_proxy = sd(mean_selected_features_proxy) / sqrt(.N),
                                mean_selected_interactions_proxy = mean(mean_selected_interactions_proxy), se_selected_interactions_proxy = sd(mean_selected_interactions_proxy) / sqrt(.N),
                                mean_selected_non_monotone_proxy = mean(mean_selected_non_monotone_proxy), se_selected_non_monotone_proxy = sd(mean_selected_non_monotone_proxy) / sqrt(.N)), by = .(method)]
-
-### Section 6 illustrational example 
-tmp = dat[task_id == 37 & repl == 1]
-eagga = unique(tmp[method == "eagga", "pareto"][[1L]][[1L]][, c("auc_test", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy")])
-eagga = eagga[!is_dominated(t(eagga) * fct)]
-eagga_md2 = unique(tmp[method == "eagga_md2", "pareto"][[1L]][[1L]][, c("auc_test", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy")])
-eagga_md2 = eagga_md2[!is_dominated(t(eagga_md2) * fct)]
-setorderv(eagga, "auc_test")
-setorderv(eagga_md2, "auc_test")
-
-# Table 3 a) b)
-round(eagga, 3)
-round(rbind(tmp[method == "ebm", c("auc_test", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy")],
-tmp[method == "glmnet", c("auc_test", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy")],
-tmp[method == "rf", c("auc_test", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy")],
-tmp[method == "xgboost", c("auc_test", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy")]), 3)
 
 # Mind the Gap
 # doesn't change much
@@ -232,7 +216,7 @@ mean_hvs_gap[, task_id := as.factor(task_id)]
 g = ggplot(aes(x = task_id, y = mean_hv_gap, colour = method), data = mean_hvs_gap) +
   geom_point(position = position_dodge(width = 0.5)) +
   geom_errorbar(aes(ymin = mean_hv_gap - se_hv_gap, ymax = mean_hv_gap + se_hv_gap), width = 0.5, position = position_dodge(width = 0.5)) +
-  labs(y = "Mean Dominated Hypervolume", x = "Task ID", colour = "Method") +
+  labs(y = "Mean Hypervolume Gap", x = "Task ID", colour = "Method") +
   theme_minimal(base_size = 12) +
   theme(axis.text.x = element_text(angle = 60), legend.position = "bottom")
 

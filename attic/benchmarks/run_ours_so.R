@@ -125,7 +125,6 @@ jobs[(problem == 11 | problem == 13 | problem == 14 | problem == 16), memory := 
 jobs[, walltime := 16L * 3600L]
 jobs[tags == "rf", memory := 1024L * 16L]
 jobs[tags == "rf", walltime := 3600L]
-jobs[tags == "ebm" & problem %in% c(, walltime := 3600L]
 
 submitJobs(jobs, resources = resources.serial.default)
 
@@ -133,10 +132,37 @@ submitJobs(jobs, resources = resources.serial.default)
 # for 15, 5 and 8 we increase the walltime to 24 hours to see if it helps
 # for the other ones we fallback to only evaluating the default
 
+# --> all 24 hours
+#    job.id
+# 1:    642
+# 2:    671
+# 3:    673
+# 4:    675
+# 5:    676
+# 6:    678
+# 7:    679
+# 8:    680
+# 9:    742
+#10:    743
+#11:    748
+
+# --> 24 hours
+#    job.id
+# 1:    442  --> moran-hugemem 256
+# 2:    445
+
+# EBM fallback:
+# [1] 442 445 611 612 613 614 615 616 617 618 619 620 661 662 663 664 665 666 667
+#[20] 668 669 670 701 702 703 704 705 706 707 708 709 710 721 722 723 724 725 726
+#[39] 727 728 729 730 731 732 733 734 735 736 737 738 739 740 751 752 753 754 755
+#[58] 756 757 758 759 760 761 762 763 764 765 766 768 769 770 781 782 783 784 785
+#[77] 786 787 788 789 790 791 792 793 794 795 797 798 799 800
+
 #######################################################################################################################################################################################################
 
 tab = getJobTable()
 tab = tab[job.id %in% findDone()$job.id]
+sum(tab$time.running, na.rm = TRUE) / 3600L  # roughly 7850 CPU hours
 results = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
   data = x
   data[, tuning_data := NULL]
@@ -147,4 +173,23 @@ results = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
 })
 results = rbindlist(results$result, fill = TRUE)
 saveRDS(results, "/gscratch/lschnei8/eagga_ours_so.rds")
+
+info = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
+  if (job$algo.pars$method != "rf") {
+    n = nrow(x$tuning_data[[1L]])
+    startt = x$tuning_data[[1L]]$timestamp[1L]
+    stopt = x$tuning_data[[1L]]$timestamp[n]
+    elapsed = as.numeric(stopt - startt)
+  } else {
+    n = 1
+    elapsed = 0
+  }
+  data = data.table(n = n, elapsed = elapsed)
+  data[, task_id := job$prob.pars$id]
+  data[, method := job$algo.pars$method]
+  data[, repl := job$repl]
+  data
+})
+info = rbindlist(info$result, fill = TRUE)
+saveRDS(info, "/gscratch/lschnei8/eagga_ours_so_info.rds")
 

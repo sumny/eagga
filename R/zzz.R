@@ -10,7 +10,6 @@
 #' @import mlr3pipelines
 #' @import mlr3tuning
 #' @import relations
-#' @import scam
 #' @import mlr3filters
 #' @import xgboost
 #' @import progress

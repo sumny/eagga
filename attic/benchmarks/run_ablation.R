@@ -137,13 +137,15 @@ submitJobs(jobs[no_crossover, ], resources = resources.serial.default)
 submitJobs(jobs[no_mutation, ], resources = resources.serial.default)
 submitJobs(jobs[no_crossover_mutation, ], resources = resources.serial.default)
 
-# for the task 14, xgboost_mo initial design took longer than the already geneours 16h at least one time
+# for the task 9, 14, 15, xgboost_mo initial design took longer than the already generous 16h at least one time
 # therefore we increased to 24 hours to see if it helps
+# job.id 2132 got 36 hours ...
 
 #######################################################################################################################################################################################################
 
 tab = getJobTable()
 tab = tab[job.id %in% findDone()$job.id & tags == "xgboost_mo"]
+sum(tab$time.running, na.rm = TRUE) / 3600L  # roughly 1746 CPU hours
 results = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
   data = x
   data[, tuning_data := NULL]
@@ -157,6 +159,7 @@ saveRDS(results, "/gscratch/lschnei8/eagga_ablation_xgboost_mo.rds")
 
 tab = getJobTable()
 tab = tab[job.id %in% findDone()$job.id & tags == "eagga_ablation"]
+sum(tab$time.running, na.rm = TRUE) / 3600L  # roughly 8037 CPU hours
 results = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
   data = x
   data[, tuning_data := NULL]
@@ -171,4 +174,20 @@ results = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
 })
 results = rbindlist(results$result, fill = TRUE)
 saveRDS(results, "/gscratch/lschnei8/eagga_ablation_eagga.rds")
+
+tab = getJobTable()
+tab = tab[job.id %in% findDone()$job.id]
+info = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
+  n = nrow(x$tuning_data[[1L]])
+  startt = x$tuning_data[[1L]]$timestamp[1L]
+  stopt = x$tuning_data[[1L]]$timestamp[n]
+  elapsed = as.numeric(stopt - startt)
+  data = data.table(n = n, elapsed = elapsed)
+  data[, task_id := job$prob.pars$id]
+  data[, method := job$algo.pars$method]
+  data[, repl := job$repl]
+  data
+})
+info = rbindlist(info$result, fill = TRUE)
+saveRDS(info, "/gscratch/lschnei8/eagga_ablation_info.rds")
 
