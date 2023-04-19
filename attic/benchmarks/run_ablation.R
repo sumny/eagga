@@ -145,7 +145,7 @@ submitJobs(jobs[no_crossover_mutation, ], resources = resources.serial.default)
 
 tab = getJobTable()
 tab = tab[job.id %in% findDone()$job.id & tags == "xgboost_mo"]
-sum(tab$time.running, na.rm = TRUE) / 3600L  # roughly 1746 CPU hours
+sum(tab$time.running, na.rm = TRUE) / 3600L  # roughly 1800 CPU hours
 results = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
   data = x
   data[, tuning_data := NULL]
@@ -159,7 +159,7 @@ saveRDS(results, "/gscratch/lschnei8/eagga_ablation_xgboost_mo.rds")
 
 tab = getJobTable()
 tab = tab[job.id %in% findDone()$job.id & tags == "eagga_ablation"]
-sum(tab$time.running, na.rm = TRUE) / 3600L  # roughly 8037 CPU hours
+sum(tab$time.running, na.rm = TRUE) / 3600L  # roughly 8050 CPU hours
 results = reduceResultsDataTable(tab$job.id, fun = function(x, job) {
   data = x
   data[, tuning_data := NULL]
