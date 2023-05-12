@@ -1,6 +1,12 @@
 
 # EA GGA
 
+This is the official implemention of the EAGGA algorithm as introduced
+in the paper ‘Multi-Objective Optimization of Performance and
+Interpretability of Tabular Supervised Machine Learning Models’.
+
+Toy example:
+
 ``` r
 library(mlr3)
 library(mlr3learners)
