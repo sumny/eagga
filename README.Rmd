@@ -71,3 +71,32 @@ instance = TuningInstanceMultiCrit$new(
 tuner = tnr("eagga", mu = 20, lambda = 10)
 tuner$optimize(instance)
 ```
+
+Notes:
+if we want to perfectly reproduce the fitted models during optimization:
+(i) we have to make the learning algorithm deterministic e.g., set.seed() passed to calculate_proxy_measures is
+sufficient for xgboost
+(ii) we have to use the learner of the instance which during optimization is updated with which signs to flip
+learner_for_measures = inst$objective$learner$clone(deep = TRUE)
+orig_pvs = learner_for_measures$param_set$values
+FIXME: we should write this somewhere else also
+(iii) we need to create selector, interaction and monotonicity based on the orig groupstructure of the archive and not
+the logged columns or the groupstructure which are the post hoc updated group structure after having evlauated it and
+using the potentially more restrictive updated group structure might result in an even smaller model when refitting
+i.e.
+select_id = "select.selector"
+interaction_id = "classif.xgboost.interaction_constraints"
+monotone_id = "classif.xgboost.monotone_constraints"
+xy = instance$archive$best()[12L, ]
+xdt = xy[, instance$archive$cols_x, with = FALSE]
+xdt1 = copy(xdt)
+groupstructure = xy$groupstructure_orig[[1L]]
+xdt[1, ][[select_id]][[1L]] = groupstructure$create_selector()
+xdt[1, ][[interaction_id]][[1L]] = groupstructure$create_interaction_constraints()
+xdt[1, ][[monotone_id]][[1L]] = groupstructure$create_monotonicity_constraints()
+(iv) I should check how to best store xgboost models etc
+(v) state how iml can be used on such a model
+
+maybe add reproduce model from archive function
+
+construct_learner_xgboost helper

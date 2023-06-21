@@ -9,7 +9,10 @@ Performs joint multi-objective optimization of hyperparameters, feature selectio
 constraints of a suitable \link[mlr3:Learner]{mlr3::Learner}.
 
 This requires an appropriate \link[mlr3:Learner]{mlr3::Learner}, that allows for selecting features, and setting interaction and
-monotonicity constraints, e.g., xgboost.
+monotonicity constraints.
+
+Currently only XGBoost learners (\link[mlr3learners:mlr_learners_regr.xgboost]{mlr3learners::LearnerRegrXgboost} or \link[mlr3learners:mlr_learners_classif.xgboost]{mlr3learners::LearnerClassifXgboost} are
+supported.
 }
 \section{Dictionary}{
 
@@ -52,10 +55,6 @@ All \link{Tuner}s use a logger (as implemented in \CRANpkg{lgr}) from package
 Use \code{lgr::get_logger("bbotk")} to access and control the logger.
 }
 
-\seealso{
-Other Tuner: 
-\code{\link{mlr_tuner_eagga_ablation}}
-}
 \concept{Tuner}
 \section{Super class}{
 \code{\link[mlr3tuning:Tuner]{mlr3tuning::Tuner}} -> \code{TunerEAGGA}

@@ -221,38 +221,3 @@ walk_up_leaf = function(leaf_id, tree, model) {
   list(min = min_feature_value_leaf, max = max_feature_value_leaf)
 }
 
-# check whether an xgboost tree is not monotone
-monotonicity_violated = function(model) {
-  # Classification Trees for Problems with Monotonicity Constraints - Potharst & Feelders (2002)
-  trees = tableOfTrees(model, use_int_id = TRUE)
-  any(unlist(
-    map(unique(trees$Tree), function(tree_id) {
-      tree = trees[Tree == tree_id]
-      leaves = tree[Feature == "Leaf"]
-      leaf_ids = leaves$Node
-      min_max_per_leaf = map(leaf_ids, function(leaf_id) {
-        walk_up_leaf(leaf_id, tree = tree, model = model)
-      })
-      names(min_max_per_leaf) = leaf_ids
-
-      not_monotone = map(leaf_ids, function(leaf_id1) {
-        value1 = leaves[Node == leaf_id1, Quality]
-        # value1 > value2 but min_value1 < max_value2 --> violates
-        potential_leaves2 = leaves[Quality < value1, Node]
-        not_monotone1 = map(potential_leaves2, function(leaf_id2) {
-          #names(which(min_max_per_leaf[[as.character(leaf_id1)]]$min < min_max_per_leaf[[as.character(leaf_id2)]]$max))
-          all(min_max_per_leaf[[as.character(leaf_id1)]]$min < min_max_per_leaf[[as.character(leaf_id2)]]$max)
-        })
-        # value1 < value2 but max_value1 > min_value2 --> violates
-        potential_leaves2 = leaves[Quality > value1, Node]
-        not_monotone2 = map(potential_leaves2, function(leaf_id2) {
-          #names(which(min_max_per_leaf[[as.character(leaf_id1)]]$max > min_max_per_leaf[[as.character(leaf_id2)]]$min))
-          all(min_max_per_leaf[[as.character(leaf_id1)]]$max > min_max_per_leaf[[as.character(leaf_id2)]]$min)
-        })
-        unlist(not_monotone1, not_monotone2)
-      })
-      unlist(not_monotone)
-    })
-  ))
-}
-

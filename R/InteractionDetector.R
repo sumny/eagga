@@ -1,10 +1,26 @@
-# Accurate Intelligible Models with Pairwise Interactions - Lou et al. (2013)
-# we assume integer or numeric features due to later using xgboost
-# logicals must be converted to integers
-# FIXME: maybe use implementation from EBM once they provide it
-# FIXME: could / should also be replicated and rely on subsampling
+#' @title Interaction Detector 
+#'
+#' @description
+#' Detects important pairwise interactions following the methodology proposed in Lou et al. (2013)
+#' FIXME: cite
+#'
+#' Only works with integer or numeric features.
+#' Logical features must be converted to integers.
+#'
+#' @export
 InteractionDetector = R6Class("InteractionDetector",
+  # FIXME: maybe use implementation from EBM once they provide it
+  # FIXME: could / should also be replicated and rely on subsampling
   public = list(
+
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #'
+    #' @param task ([mlr3::Task)\cr
+    #'   Task.
+    #' @param grid_size (integer(1))\cr
+    #'   Grid size used to construct grids for each feature.
+    #'   Default is `10`.
     initialize = function(task, grid_size = 10L) {
       assert_task(task, feature_types = c("integer", "numeric"))
       assert_int(grid_size, lower = 1L)
@@ -32,15 +48,43 @@ InteractionDetector = R6Class("InteractionDetector",
       })
     },
 
+    #' @field task ([mlr3::Task])\cr
+    #'   Task.
     task = NULL,
+
+    #' @field xs ([data.table::data.table])\cr
+    #'   data.table of features of the [mlr3::Task].
     xs = NULL,
+
+    #' @field n_features (integer(1))\cr
+    #'   Number of features part of the [mlr3::Task].
     n_features = NULL,
+
+    #' @field feature_names (character()) \cr
+    #'   The names of the features of the [mlr3::Task].
     feature_names = NULL,
+
+    #' @field feature_types (character()) \cr
+    #'   The types of the features of the [mlr3::Task].
     feature_types = NULL,
+
+    #' @field y (numeric())\cr
+    #'   Numeric target vector of the [mlr3::Task].
     y = NULL,
+
+    #' @field grids (list())\cr
+    #'   List of grids of size `grid_size` containing a grid of each feature.
+    #'
     grids = NULL,
+
+    #' @field rss (matrix())\cr
+    #'  Symmetric numeric matrix of dimension `n_features` times `n_features` containing the residual sum of squares for each pair of features.
     rss = NULL,
 
+    #' @description
+    #' Method to compute the residual sum of squares for each pair of features, overwriting `$rss`.
+    #'
+    #' @return Invisible (`NULL`)
     compute_best_rss = function() {
       pb = progress_bar$new(format = "Detecting interactions [:bar] :percent eta: :eta", total = (self$n_features * self$n_features - 1L) / 2L)
       rss = matrix(0, nrow = self$n_features, ncol = self$n_features)
@@ -53,8 +97,19 @@ InteractionDetector = R6Class("InteractionDetector",
           }
         }
       self$rss = rss
+      invisible(NULL)
     },
 
+    #' @description
+    #' Retrieves equivalence classes (groups of features) based on the top k most important pairwise interactions.
+    #'
+    #' @param k (integer(1))\cr
+    #'   The number of top interactions to consider.
+    #' @param features (character() | NULL)\cr
+    #'   The features to consider for detecting interactions.
+    #'   If not provided, all features will be used (default).
+    #'
+    #' @return (A named (integer()) vector indicating the equivalence class each feature belongs to
     get_eqcs_from_top_k = function(k = 1L, features = NULL) {
       assert_subset(features, choice = self$feature_names)
       if (is.null(features)) features = self$feature_names
@@ -190,7 +245,7 @@ compute_best_rss_pairwise = function(xi, xj, y, cuts_i, cuts_j) {
   for (i in seq_len(n_cuts_i)) {
     for (j in seq_len(n_cuts_j)) {
       tijs = na.replace(lookup_list_t[[i]][[j]] / lookup_list_w[[i]][[j]])
-      rss[[i]][j] = sum(tijs^2 *  lookup_list_w[[i]][[j]]) - 2 * sum(tijs * lookup_list_w[[i]][[j]])
+      rss[[i]][j] = sum(tijs^2 * lookup_list_w[[i]][[j]]) - 2 * sum(tijs * lookup_list_w[[i]][[j]])
     }
   }
   

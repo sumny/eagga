@@ -74,7 +74,7 @@ get_actual_interactions = function(features, pairs) {
   I = relation_incidence(rel)[features, features, drop = FALSE]
   belonging = get_class_ids_from_incidence(I)
   # NOTE: I must not be transitive but we should not violate transitivity in the feedback loop
-  #       Therefore the groupstructure is always based on transitivity closure
+  #       therefore the groupstructure is always based on transitivity closure
   #       we use n_interactions instead of n_interactions_unclosed to penalize higher-order interactions directly
   list(n_interactions = sum(I[upper.tri(I)]), n_interactions_unclosed = n_interactions_unclosed, I = I, belonging = belonging)
 }
@@ -90,6 +90,7 @@ calculate_proxy_measures = function(learner, task, orig_pvs, xdt, search_space, 
   assert_string(monotone_id, null.ok = TRUE)
   pvs = transform_xdt_to_xss(xdt, search_space = search_space)[[1L]]
   learner$param_set$values = insert_named(orig_pvs, pvs)
+  set.seed(0)
   learner$train(task)
   learner$param_set$values = orig_pvs  # reset to orig pvs
 
@@ -155,7 +156,7 @@ check_actual_and_orig = function(orig_groups, actual_groups) {
   }
 }
 
-# FIXME: should be method of the IAMLPoint class
+# NOTE: should be method of the IAMLPoint class
 # update a group structure via the actually used features and their groups
 update_sIm = function(groupstructure, used, belonging) {
   assert_subset(used, groupstructure$feature_names)

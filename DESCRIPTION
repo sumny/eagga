@@ -11,7 +11,6 @@ Depends:
   R (>= 3.5.0),
   mlr3tuning
 Imports:
-  backports,
   bbotk,
   checkmate (>= 2.0.0),
   data.table,

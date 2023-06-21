@@ -7,7 +7,10 @@
 #' constraints of a suitable [mlr3::Learner].
 #'
 #' This requires an appropriate [mlr3::Learner], that allows for selecting features, and setting interaction and
-#' monotonicity constraints, e.g., xgboost.
+#' monotonicity constraints.
+#'
+#' Currently only XGBoost learners ([mlr3learners::LearnerRegrXgboost] or [mlr3learners::LearnerClassifXgboost] are
+#' supported.
 #'
 #' @templateVar id eagga
 #' @template section_dictionary_tuners
@@ -58,6 +61,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
 
   private = list(
     .optimize = function(inst) {
+      # FIXME: should we also allow the passing of a seed?, should we seed the learner?
       # FIXME: assert that select_id, interaction_id, monotone_id are part of the search space
       select_id = self$param_set$values$select_id
       interaction_id = self$param_set$values$interaction_id
