@@ -122,6 +122,7 @@ MonotonicityDetector = R6Class("MonotonicityDetectorDetector",
 
   private = list(
     .compute_rho = function(x_name, repls = 10L) {
+    # FIXME: return 0 if sd is 0
     task = self$task$clone(deep = TRUE)
     if (task$task_type == "classif") {
       learner = as_learner(po("subsample", frac = 0.9) %>>% lrn("classif.rpart"))

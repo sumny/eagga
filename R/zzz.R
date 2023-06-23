@@ -35,7 +35,7 @@ register_mlr3 = function() {
   x$add("selected_features_proxy", function() MeasureSelectedFeaturesProxy$new())
   x$add("selected_interactions_proxy", function() MeasureSelectedInteractionsProxy$new())
   x$add("selected_non_monotone_proxy", function() MeasureSelectedNonMonotoneProxy$new())
-}
+} # nocov end
 
 .onLoad = function(libname, pkgname) { # nolint
   # nocov start

@@ -22,14 +22,17 @@ The reconstructed EAGGA model in the form of the (\link[mlr3:Learner]{mlr3::Lear
 \link[mlr3tuning:TuningInstanceMultiCrit]{mlr3tuning::TuningInstanceMultiCrit} trained on the full \link[mlr3:Task]{mlr3::Task}.
 }
 \description{
-This function reconstructs an EAGGA model from a \link{TuningInstanceMultiCrit} and \link{TunerEAGGA}
+This function reconstructs an EAGGA model from a \link[mlr3tuning:TuningInstanceMultiCrit]{mlr3tuning::TuningInstanceMultiCrit} and \link{TunerEAGGA}
 and a model unique hash (uhash) value after a completed tuning run
 }
 \details{
 This function reconstructs an EAGGA model observed during tuning specified by its unique hash
-by extracting the necessary information from the provided \link[mlr3tuning:TuningInstanceMultiCrit]{mlr3tuning::TuningInstanceMultiCrit} and \link{TunerEAGGA}
-object. It clones the learner and task from the tuning instance, sets the learner's hyperparameter values accordingly
-and trains the learner on the task.
+by extracting the necessary information from the provided \link[mlr3tuning:TuningInstanceMultiCrit]{mlr3tuning::TuningInstanceMultiCrit} and \link{TunerEAGGA} object.
+It clones the learner and task from the tuning instance, sets the learner's hyperparameter values according
+to the values logged into the archive matching the given unique hash of the model and trains the learner on the task.
 Note that if no random seed was specified during construction of the \link{TunerEAGGA} (via the
 \code{seed_calculate_proxy_measures} parameter), exact reconstruction may not be possible.
+As the learner is trained on the complete task, the model can be readily used on new data.
+It should no longer be used for performance estimation unless you do have access to another task containing hold-out
+test data that was not seen during tuning.
 }

@@ -23,10 +23,7 @@ learner$param_set$values$classif.xgboost.booster = "gbtree"
 learner$param_set$values$classif.xgboost.tree_method = "exact"
 learner$param_set$values$colapply.applicator = function(x) - x
 
-measures = list(msr("classif.ce"),
-                msr("selected_features_proxy"),
-                msr("selected_interactions_proxy"),
-                msr("selected_non_monotone_proxy"))
+measures = msrs(c("classif.ce", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy"))
 
 terminator = trm("evals", n_evals = 220)
 
@@ -42,7 +39,7 @@ search_space = ps(
   classif.xgboost.alpha = p_dbl(lower = log(1e-4), upper = log(1000), tags = "log",
                                 trafo = function(x) exp(x), default = log(1e-4)),
   classif.xgboost.subsample = p_dbl(lower = 0.1, upper = 1, default = 1),
-  classif.xgboost.max_depth = p_int(lower = 1L, upper = 20L, default = 6L),
+  classif.xgboost.max_depth = p_int(lower = 1, upper = 20, default = 6),
   classif.xgboost.min_child_weight = p_dbl(lower = log(1), upper = log(150), tags = "log",
                                            trafo = function(x) exp(x), default = log(exp(1))),
   classif.xgboost.colsample_bytree = p_dbl(lower = 0.01, upper = 1, default = 1),
@@ -63,13 +60,15 @@ instance = TuningInstanceMultiCrit$new(
 )
 
 tuner = tnr("eagga",
-            learner_id = "classif.xgboost",
-            select_id = "select.selector",
-            interaction_id = "classif.xgboost.interaction_constraints",
-            monotone_id = "classif.xgboost.monotone_constraints",
-            mu = 100,
-            lambda = 10,
-            seed_calculate_proxy_measures = 1)
+  learner_id = "classif.xgboost",
+  select_id = "select.selector",
+  interaction_id = "classif.xgboost.interaction_constraints",
+  monotone_id = "classif.xgboost.monotone_constraints",
+  mu = 100,
+  lambda = 10,
+  seed_calculate_proxy_measures = 1
+)
+
 tuner$optimize(instance)
 
 instance$archive$best()

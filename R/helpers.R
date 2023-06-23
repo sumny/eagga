@@ -6,25 +6,6 @@ get_eqcs = function(x) {
   })
 }
 
-# function to get the interaction matrix based on eqcs
-get_matrix = function(x) {
-  # x is output like get_eqcs
-  features = unique(unlist(x))
-  n_features = length(features)
-  I = diag(1, nrow = n_features, ncol = n_features)
-  rownames(I) = colnames(I) = features
-  for (i in seq_along(x)) {
-    indices = match(x[[i]], features)
-    # if eqc only has one member do nothing
-    if (length(indices) >= 2L) {
-      interactions = utils::combn(indices, m = 2L)
-      I[t(interactions)] = 1
-    }
-  }
-  I[lower.tri(I)] = t(I)[lower.tri(I)]
-  I
-}
-
 # sampling features to eqcs
 sample_interactions_random = function(features) {
   n_eqcs = sample(seq_along(features), size = 1L)

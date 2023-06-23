@@ -64,7 +64,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
 
   private = list(
     .optimize = function(inst) {
-      # FIXME: should we also allow the passing of a seed?, should we seed the learner?
+      # FIXME: currently we probably should test that the GraphLearner contains all needed PipeOps
       learner_id = assert_choice(self$param_set$values$learner_id, choices = inst$objective$learner$graph$ids())
       select_id = assert_choice(self$param_set$values$select_id, choices = inst$objective$learner$param_set$ids())
       interaction_id = assert_choice(self$param_set$values$interaction_id, choices = inst$objective$learner$param_set$ids())
@@ -106,6 +106,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
       monotonicity_detector$compute_unconstrained_weights()
       unconstrained_weight_table = monotonicity_detector$unconstrained_weight_table
       switch_sign_affected = task$feature_names[map_lgl(task$feature_names, function(feature_name) monotonicity_detector$get_sign(feature_name) == -1L)]
+      # FIXME: make this more flexible
       inst$objective$learner$param_set$values$colapply.affect_columns = selector_name(switch_sign_affected)
 
       private$.n_selected_prob = n_selected_prob
