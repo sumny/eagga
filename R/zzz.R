@@ -60,7 +60,7 @@ register_mlr3 = function() {
 } # nocov end
 
 # static code checks should not complain about commonly used data.table columns
-utils::globalVariables(c("id", "Parent", "Child", "var", "stack", "Child", "Tree", "Feature", "Node", "Quality", "Yes", "No", "Missing", "ID", "isLeaf", "feature"))
+utils::globalVariables(c("id", "Parent", "Child", "var", "stack", "Child", "Tree", "Feature", "Node", "Quality", "Yes", "No", "Missing", "ID", "isLeaf", "feature", "uhash"))
 
 #if (!Sys.getenv("DEVTOOLS_LOAD") == "true") {
 #  leanify_package()

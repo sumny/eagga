@@ -28,7 +28,9 @@ Imports:
   relations (>= 0.6-12),
   xgboost (>= 1.6.0.1)
 Suggests:
+  FSelectorRcpp,
   iml (>= 0.11.1),
+  rpart,
   testthat (>= 3.0.0)
 Encoding: UTF-8
 Config/testthat/edition: 3
