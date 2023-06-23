@@ -92,6 +92,8 @@ ale_used_unc = FeatureEffect$new(predictor, feature = groupstructure$monotone_fe
 plot(ale_used_unc)
 ```
 
-Notes: \* Check how to best store xgboost models etc. \* Maybe introduce
-a helper to construct a suitable GraphLearner \* Vignette for classif
-and regr example
+Notes:
+
+- Check how to best store xgboost models etc.
+- Maybe introduce a helper to construct a suitable GraphLearner
+- Vignette for classif and regr example
