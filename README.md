@@ -1,5 +1,11 @@
 
-# EA GGA
+# eagga
+
+<!-- badges: start -->
+
+[![r-cmd-check](https://github.com/sumny/eagga/actions/workflows/r-cmd-check.yml/badge.svg?branch=main)](https://github.com/sumny/eagga/actions/workflows/r-cmd-check.yml)
+[![pkgdown](https://img.shields.io/badge/Website-Documentation-blue)](https://sumny.github.io/eagga/)
+<!-- badges: end -->
 
 This is the official implemention of the EAGGA algorithm as introduced
 in the paper ‘Multi-Objective Optimization of Performance and
