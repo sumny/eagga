@@ -1,4 +1,6 @@
 url: https://sumny.github.io/eagga/
 template:
   bootstrap: 5
+  bootswatch: darkly
+  theme: arrow-dark
 
