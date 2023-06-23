@@ -4,3 +4,7 @@ README_files
 ^man-roxygen$
 ^.github$
 ^todo$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
