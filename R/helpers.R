@@ -80,7 +80,7 @@ get_actual_interactions = function(features, pairs) {
 }
 
 # actual features used by a xgboost model (trained on the whole tuning task)
-calculate_proxy_measures = function(learner, task, orig_pvs, xdt, search_space, xgb_model_name = "classif.xgboost", monotone_id = "classif.xgboost.monotone_constraints") {
+calculate_proxy_measures = function(learner, task, orig_pvs, xdt, search_space, xgb_model_name, monotone_id, seed = NULL) {
   assert_learner(learner)
   assert_task(task)
   assert_list(orig_pvs)
@@ -88,9 +88,12 @@ calculate_proxy_measures = function(learner, task, orig_pvs, xdt, search_space, 
   assert_r6(search_space, classes = "ParamSet")
   assert_string(xgb_model_name, null.ok = TRUE)
   assert_string(monotone_id, null.ok = TRUE)
+  assert_int(seed, null.ok = TRUE)
   pvs = transform_xdt_to_xss(xdt, search_space = search_space)[[1L]]
   learner$param_set$values = insert_named(orig_pvs, pvs)
-  set.seed(0)
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
   learner$train(task)
   learner$param_set$values = orig_pvs  # reset to orig pvs
 
@@ -109,7 +112,7 @@ calculate_proxy_measures = function(learner, task, orig_pvs, xdt, search_space, 
   n_selected = length(used)
   n_selected = n_selected / n_selected_total  # normalize
 
-  n_interactions_total = (n_selected_total * (n_selected_total - 1L)) / 2L
+ n_interactions_total = (n_selected_total * (n_selected_total - 1L)) / 2L
   pairs = tryCatch(interactions(model, option = "pairs"), error = function(ec) {
     NULL
   })
@@ -302,3 +305,66 @@ sample_from_truncated_geom = function(p, lower, upper) {
   z
 }
 
+#' @title Reconstructs an EAGGA model from a Tuning Instance
+#'
+#' @description
+#' This function reconstructs an EAGGA model from a [mlr3tuning::TuningInstanceMultiCrit] and [TunerEAGGA]
+#' and a model unique hash (uhash) value after a completed tuning run
+#'
+#' @param instance ([mlr3tuning::TuningInstanceMultiCrit])\cr
+#'   The terminated tuning instance.
+#' @param tuner ([TunerEAGGA])\cr
+#'   The tuner that optimized the instance.
+#' @param model_uhash (`character(1)`\cr
+#'   A character string representing the unique hash (uhash) of the model to be reconstructed.
+#'   See `instance$archive$data$uhash` for possible values.
+#'
+#' @return The reconstructed EAGGA model in the form of the ([mlr3::Learner]) passed during construction of the
+#' [mlr3tuning::TuningInstanceMultiCrit] trained on the full [mlr3::Task].
+#'
+#' @details This function reconstructs an EAGGA model observed during tuning specified by its unique hash
+#' by extracting the necessary information from the provided [mlr3tuning::TuningInstanceMultiCrit] and [TunerEAGGA] object.
+#' It clones the learner and task from the tuning instance, sets the learner's hyperparameter values according
+#' to the values logged into the archive matching the given unique hash of the model and trains the learner on the task.
+#' Note that if no random seed was specified during construction of the [TunerEAGGA] (via the
+#' `seed_calculate_proxy_measures` parameter), exact reconstruction may not be possible.
+#' As the learner is trained on the complete task, the model can be readily used on new data.
+#' It should no longer be used for performance estimation unless you do have access to another task containing hold-out
+#' test data that was not seen during tuning.
+#'
+#' @export
+reconstruct_eagga_model = function(instance, tuner, model_uhash) {
+  assert_r6(instance, classes = "TuningInstanceMultiCrit")
+  #stopifnot(instance$is_terminated)
+  assert_r6(tuner, classes = "TunerEAGGA")
+  assert_choice(model_uhash, choices = instance$archive$data$uhash)
+
+  learner = instance$objective$learner$clone(deep = TRUE)
+  task = instance$objective$task$clone(deep = TRUE)
+
+  select_id = tuner$param_set$values$select_id
+  interaction_id = tuner$param_set$values$interaction_id
+  monotone_id = tuner$param_set$values$monotone_id
+  seed = tuner$param_set$values$seed_calculate_proxy_measures
+  if (is.null(seed)) {
+    warning("No seed was specified to fit and evaluate an EAGGA model during tuning.\n",
+            "  Exact reconstruction may therefore not be possible.\n",
+            "  To allow exact reconstruction after tuning, specify the `seed_calculate_proxy_measures` prior to tuning.")
+  }
+
+  x = instance$archive$data[uhash == model_uhash, ]
+  groupstructure = x$groupstructure_orig[[1L]]
+  xdt = x[, instance$archive$cols_x, with = FALSE]
+  xdt[1L, ][[select_id]][[1L]] = groupstructure$create_selector()
+  xdt[1L, ][[interaction_id]][[1L]] = groupstructure$create_interaction_constraints()
+  xdt[1L, ][[monotone_id]][[1L]] = groupstructure$create_monotonicity_constraints()
+  
+  orig_pvs = learner$param_set$values
+  pvs = transform_xdt_to_xss(xdt, search_space = instance$search_space)[[1L]]
+  learner$param_set$values = insert_named(orig_pvs, pvs)
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  learner$train(task)
+  learner
+}

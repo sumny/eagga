@@ -68,35 +68,37 @@ instance = TuningInstanceMultiCrit$new(
   store_models = TRUE
 )
 
-tuner = tnr("eagga", mu = 20, lambda = 10)
+tuner = tnr("eagga",
+            learner_id = "classif.xgboost",
+            select_id = "select.selector",
+            interaction_id = "classif.xgboost.interaction_constraints",
+            monotone_id = "classif.xgboost.monotone_constraints",
+            mu = 100,
+            lambda = 10,
+            seed_calculate_proxy_measures = 1)
 tuner$optimize(instance)
+
+instance$archive$best()
+
+trained_learner = reconstruct_eagga_model(instance, tuner = tuner, model_uhash = instance$archive$best()$uhash[1])
+
+groupstructure = instance$archive$best()$groupstructure[1][[1]]
+groupstructure$selected_features
+groupstructure$get_groups()
+groupstructure$monotone_features
+
+library(iml)
+trained_learner$predict_type = "prob"
+predictor = Predictor$new(trained_learner, data = task$data(cols = task$feature_names), y = task$data(cols = task$target_names)[[1]])
+ale_unused = FeatureEffect$new(predictor, feature = groupstructure$unselected_features[1])
+plot(ale_unused)
+ale_used_mon = FeatureEffect$new(predictor, feature = groupstructure$monotone_features[monotonicity == 1]$feature[1])
+plot(ale_used_mon)
+ale_used_unc = FeatureEffect$new(predictor, feature = groupstructure$monotone_features[monotonicity == 0]$feature[1])
+plot(ale_used_unc)
 ```
 
 Notes:
-if we want to perfectly reproduce the fitted models during optimization:
-(i) we have to make the learning algorithm deterministic e.g., set.seed() passed to calculate_proxy_measures is
-sufficient for xgboost
-(ii) we have to use the learner of the instance which during optimization is updated with which signs to flip
-learner_for_measures = inst$objective$learner$clone(deep = TRUE)
-orig_pvs = learner_for_measures$param_set$values
-FIXME: we should write this somewhere else also
-(iii) we need to create selector, interaction and monotonicity based on the orig groupstructure of the archive and not
-the logged columns or the groupstructure which are the post hoc updated group structure after having evlauated it and
-using the potentially more restrictive updated group structure might result in an even smaller model when refitting
-i.e.
-select_id = "select.selector"
-interaction_id = "classif.xgboost.interaction_constraints"
-monotone_id = "classif.xgboost.monotone_constraints"
-xy = instance$archive$best()[12L, ]
-xdt = xy[, instance$archive$cols_x, with = FALSE]
-xdt1 = copy(xdt)
-groupstructure = xy$groupstructure_orig[[1L]]
-xdt[1, ][[select_id]][[1L]] = groupstructure$create_selector()
-xdt[1, ][[interaction_id]][[1L]] = groupstructure$create_interaction_constraints()
-xdt[1, ][[monotone_id]][[1L]] = groupstructure$create_monotonicity_constraints()
-(iv) I should check how to best store xgboost models etc
-(v) state how iml can be used on such a model
-
-maybe add reproduce model from archive function
-
-construct_learner_xgboost helper
+* Check how to best store xgboost models etc.
+* Maybe introduce a helper to construct a suitable GraphLearner
+* Vignette for classif and regr example

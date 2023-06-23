@@ -135,7 +135,7 @@ calculatePairsGainTable = function(xgb_model) {
   importance = merge(importanceCount, importanceGain, by = "name_pair")
   importance =
   importance[, `:=`(Parent = as.vector(unlist(map(strsplit(importance[, name_pair], "[:]"), 1))),
-                    Child = as.vector(unlist(map(strsplit(importance[, name_pair], "[:]"), 2 ))))]
+                    Child = as.vector(unlist(map(strsplit(importance[, name_pair], "[:]"), 2))))]
   importance = importance[, -1]
   setorderv(importance, "sumGain", -1)
 
@@ -195,29 +195,5 @@ tableOfTrees = function(model, ...) {
   if(class(model)[1] == "xgb.Booster") {
     return(xgb_model_dt_tree(model = model, ...)[])
   }
-}
-
-# walk up a leaf in an xgboost tree to get its feature region (min max corners for each feature)
-walk_up_leaf = function(leaf_id, tree, model) {
-  node_to_check_leaf = leaf_id
-  min_feature_value_leaf = setNames(rep(-Inf, length(model$feature_names)), model$feature_names)
-  max_feature_value_leaf = setNames(rep(Inf, length(model$feature_names)), model$feature_names)
-  
-  tmp = tree[Yes == node_to_check_leaf | No == node_to_check_leaf | Missing == node_to_check_leaf]
-  while(nrow(tmp) > 0) {
-    stopifnot(nrow(tmp) == 1)
-    if (tmp$Yes == node_to_check_leaf) {
-      if (tmp$Split < max_feature_value_leaf[tmp$Feature]) {
-        max_feature_value_leaf[tmp$Feature] = tmp$Split
-      }
-    } else if (tmp$No == node_to_check_leaf) {
-      if (tmp$Split > min_feature_value_leaf[tmp$Feature]) {
-        min_feature_value_leaf[tmp$Feature] = tmp$Split
-      }
-    }
-    node_to_check_leaf = tmp$Node
-    tmp = tree[Yes == node_to_check_leaf | No == node_to_check_leaf | Missing == node_to_check_leaf]
-  }
-  list(min = min_feature_value_leaf, max = max_feature_value_leaf)
 }
 

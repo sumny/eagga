@@ -27,6 +27,7 @@ tnr("eagga")
 
 \section{Parameters}{
 
+FIXME: document
 \describe{
 \item{\code{select_id}}{\code{character(1)}\cr
 ID of param in Learner that selects features.}

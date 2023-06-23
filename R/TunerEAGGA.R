@@ -16,6 +16,7 @@
 #' @template section_dictionary_tuners
 #'
 #' @section Parameters:
+#' FIXME: document
 #' \describe{
 #' \item{`select_id`}{`character(1)`\cr
 #' ID of param in Learner that selects features.}
@@ -41,13 +42,15 @@ TunerEAGGA = R6Class("TunerEAGGA",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       param_set = ps(
-        select_id = p_uty(tags = "required"),
-        interaction_id = p_uty(tags = "required"),
-        monotone_id = p_uty(tags = "required"),
-        mu = p_int(tags = "required"),
-        lambda = p_int(tags = "required")
+        learner_id = p_uty(tags = "required", custom_check = check_string),
+        select_id = p_uty(tags = "required", custom_check = check_string),
+        interaction_id = p_uty(tags = "required", custom_check = check_string),
+        monotone_id = p_uty(tags = "required", custom_check = check_string),
+        mu = p_int(lower = 1L, default = 100L, tags = "required"),
+        lambda = p_int(lower = 1L, default = 10L, tags = "required"),
+        seed_calculate_proxy_measures = p_int()
       )
-      param_set$values = list(select_id = "select.selector", interaction_id = "classif.xgboost.interaction_constraints", monotone_id = "classif.xgboost.monotone_constraints")
+      param_set$values = list(mu = 100L, lambda = 10L)
       super$initialize(
         param_set = param_set,
         param_classes = c("ParamDbl", "ParamFct", "ParamInt", "ParamLgl", "ParamUty"),
@@ -62,12 +65,13 @@ TunerEAGGA = R6Class("TunerEAGGA",
   private = list(
     .optimize = function(inst) {
       # FIXME: should we also allow the passing of a seed?, should we seed the learner?
-      # FIXME: assert that select_id, interaction_id, monotone_id are part of the search space
-      select_id = self$param_set$values$select_id
-      interaction_id = self$param_set$values$interaction_id
-      monotone_id = self$param_set$values$monotone_id
-      mu = self$param_set$values$mu
-      lambda = self$param_set$values$lambda
+      learner_id = assert_choice(self$param_set$values$learner_id, choices = inst$objective$learner$graph$ids())
+      select_id = assert_choice(self$param_set$values$select_id, choices = inst$objective$learner$param_set$ids())
+      interaction_id = assert_choice(self$param_set$values$interaction_id, choices = inst$objective$learner$param_set$ids())
+      monotone_id = assert_choice(self$param_set$values$monotone_id, choices = inst$objective$learner$param_set$ids())
+      mu = assert_int(self$param_set$values$mu, lower = 1L)
+      lambda = assert_int(self$param_set$values$lambda, lower = 1L)
+      seed_calculate_proxy_measures = assert_int(self$param_set$values$seed_calculate_proxy_measures, null.ok = TRUE)
 
       # probs for mutation and crossover
       probs = Probs$new()
@@ -145,7 +149,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
 
         # NOTE: this messes with logging (proxy measures are logged and the updated ones are not logged)
         # actually evaluate the proxy measures
-        proxy_measures = calculate_proxy_measures(learner_for_measures, task = task, orig_pvs = orig_pvs, xdt = inst$archive$data[j, inst$archive$cols_x, with = FALSE], search_space = inst$search_space)
+        proxy_measures = calculate_proxy_measures(learner_for_measures, task = task, orig_pvs = orig_pvs, xdt = inst$archive$data[j, inst$archive$cols_x, with = FALSE], search_space = inst$search_space, xgb_model_name = learner_id, monotone_id = monotone_id, seed = seed_calculate_proxy_measures)
         inst$archive$data[j, selected_features_proxy := proxy_measures$n_selected]
         inst$archive$data[j, selected_interactions_proxy := proxy_measures$n_interactions]
         inst$archive$data[j, selected_non_monotone_proxy := proxy_measures$n_non_monotone]
@@ -183,7 +187,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
 
         # create children
         # binary tournament selection of parents
-        # FIXME: if alive ids is < 1 (due to zero selection being killed) simply generate children at random but this is unlikely to happen
+        # FIXME: if alive ids is < 1 (due to zero selection being killed) simply generate children at random? but this is unlikely to happen?
         children = map_dtr(seq_len(ceiling(lambda / 2)), function(i) {
           parent_id1 = binary_tournament(ys, alive_ids)
           parent_id2 = binary_tournament(ys, alive_ids)
@@ -258,7 +262,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
 
           # actually evaluate the proxy measures
           # learner_for_measures and orig_pvs have been defined above (eval of initial population)
-          proxy_measures = calculate_proxy_measures(learner_for_measures, task = task, orig_pvs = orig_pvs, xdt = inst$archive$data[j, inst$archive$cols_x, with = FALSE], search_space = inst$search_space)
+          proxy_measures = calculate_proxy_measures(learner_for_measures, task = task, orig_pvs = orig_pvs, xdt = inst$archive$data[j, inst$archive$cols_x, with = FALSE], search_space = inst$search_space, xgb_model_name = learner_id, monotone_id = monotone_id, seed = seed_calculate_proxy_measures)
           inst$archive$data[j, selected_features_proxy := proxy_measures$n_selected]
           inst$archive$data[j, selected_interactions_proxy := proxy_measures$n_interactions]
           inst$archive$data[j, selected_non_monotone_proxy := proxy_measures$n_non_monotone]
