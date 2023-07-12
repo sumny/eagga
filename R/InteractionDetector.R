@@ -1,5 +1,6 @@
-#' Interaction Detector
+#' @title Interaction Detector
 #'
+#' @description
 #' Detects important pairwise interactions using a simple interaction detector inspired by the more sophisticated
 #' methodology proposed in Lou et al. (2013).
 #'

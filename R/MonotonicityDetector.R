@@ -113,36 +113,36 @@ MonotonicityDetector = R6Class("MonotonicityDetectorDetector",
       colnames(self$unconstrained_weight_table) = c("feature_name", "unconstrained_weight")
       self$unconstrained_weight_table[, unconstrained_weight := 1 - abs(unconstrained_weight)]
       self$unconstrained_weight_table[, unconstrained_weight := ((unconstrained_weight - 0) / (1 - 0)) * (0.8 - 0.2) +  0.2]  # bound by [0.2, 0.8]
-
       invisible(NULL)
     }
   ),
 
   private = list(
     .compute_rho = function(feature_name, repls = 10L) {
-    task = self$task$clone(deep = TRUE)
-    if (task$task_type == "classif") {
-      learner = as_learner(po("subsample", frac = 0.9) %>>% lrn("classif.rpart"))
-      learner$predict_type = "prob"
-    } else if (task$task_type == "regr") {
-      learner = as_learner(po("subsample", frac = 0.9) %>>% lrn("regr.rpart"))
-    }
-    task$col_roles$feature = feature_name
-    rho_repls = map_dbl(seq_len(repls), function(repl) {
-      learner$train(task)
-      pred = learner$predict(task)
+      feature_name_ = feature_name
+      task = self$task$clone(deep = TRUE)
       if (task$task_type == "classif") {
-        y = pred$prob[, task$positive]
+        learner = as_learner(po("subsample", frac = 0.9) %>>% lrn("classif.rpart"))
+        learner$predict_type = "prob"
       } else if (task$task_type == "regr") {
-        y = pred$response
+        learner = as_learner(po("subsample", frac = 0.9) %>>% lrn("regr.rpart"))
       }
-      if (sd(y) < sqrt(.Machine$double.eps) | sd(task$data(cols = feature_name)[[1L]]) < sqrt(.Machine$double.eps)) {
-        0
-      } else {
-        cor(y, task$data(cols = feature_name)[[1L]], method = "spearman")
-      }
-    })
-      self$rho_table[feature_name == feature_name, rho := mean(rho_repls)]
+      task$col_roles$feature = feature_name_
+      rho_repls = map_dbl(seq_len(repls), function(repl) {
+        learner$train(task)
+        pred = learner$predict(task)
+        if (task$task_type == "classif") {
+          y = pred$prob[, task$positive]
+        } else if (task$task_type == "regr") {
+          y = pred$response
+        }
+        if (sd(y) < sqrt(.Machine$double.eps) | sd(task$data(cols = feature_name_)[[1L]]) < sqrt(.Machine$double.eps)) {
+          0
+        } else {
+          cor(y, task$data(cols = feature_name_)[[1L]], method = "spearman")
+        }
+      })
+      self$rho_table[feature_name == feature_name_, rho := mean(rho_repls)]
     }
   )
 )

@@ -4,11 +4,6 @@
 \alias{InteractionDetector}
 \title{Interaction Detector}
 \description{
-Interaction Detector
-
-Interaction Detector
-}
-\details{
 Detects important pairwise interactions using a simple interaction detector inspired by the more sophisticated
 methodology proposed in Lou et al. (2013).
 

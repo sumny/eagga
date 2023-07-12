@@ -10,6 +10,7 @@ test_that("MonotonicityDetector on classif works", {
   expect_data_table(detector$rho_table, nrows = length(task$feature_names), ncols = 2L, col.names = "named")
   expect_equal(colnames(detector$rho_table), c("feature_name", "rho"))
   expect_true(all(detector$rho_table[["rho"]] >= 0))
+  expect_true(any(detector$rho_table[["rho"]] > 0))
 
   expect_equal(map_int(task$feature_names, function(feature_name) detector$get_sign(feature_name)), rep(1L, 6L))
 
@@ -33,9 +34,10 @@ test_that("MonotonicityDetector on classif works", {
   expect_data_table(detector$rho_table, nrows = length(task$feature_names), ncols = 2L, col.names = "named")
   expect_equal(colnames(detector$rho_table), c("feature_name", "rho"))
   expect_true(all(detector$rho_table[["rho"]] <= 0))
+  expect_true(any(detector$rho_table[["rho"]] < 0))
 
   # no effect will result in a sign of 1
-  expect_equal(map_int(task$feature_names[-6], function(feature_name) detector$get_sign(feature_name)), rep(1L, 5L))
+  expect_equal(map_int(task$feature_names[-6L], function(feature_name) detector$get_sign(feature_name)), rep(-1L, 5L))
   expect_equal(detector$get_sign("x6"), 1L)
 
   expect_data_table(detector$unconstrained_weight_table, nrows = length(task$feature_names), ncols = 2L, col.names = "named")
@@ -59,6 +61,7 @@ test_that("MonotonicityDetectoron regr works", {
   expect_data_table(detector$rho_table, nrows = length(task$feature_names), ncols = 2L, col.names = "named")
   expect_equal(colnames(detector$rho_table), c("feature_name", "rho"))
   expect_true(all(detector$rho_table[["rho"]] >= 0))
+  expect_true(any(detector$rho_table[["rho"]] > 0))
 
   expect_equal(map_int(task$feature_names, function(feature_name) detector$get_sign(feature_name)), rep(1L, 6L))
 
