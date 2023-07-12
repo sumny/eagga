@@ -45,8 +45,7 @@
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>feature_names</code></dt>
 <dd><p>(character()) <br>
-The names of the features of the <a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>.
-FIXME: make private or AB</p></dd>
+The names of the features of the <a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a>.</p></dd>
 
 
 </dl><p></p></div>
@@ -128,7 +127,6 @@ Whether unselecting all features should be allowed i.e., having only a single gr
 <span>  scores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  interaction_detector <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  unconstrained_weight_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  n_interactions_prob <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  unconstrained <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -147,8 +145,7 @@ Number of selected features.</p></dd>
 
 <dt><code>scores</code></dt>
 <dd><p>(<a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table::data.table</a>)<br>
-data.table with as many rows as features and two columns <code>feature</code> and <code>score</code> with <code>feature</code> being the id of
-the feature and <code>score</code> being the feature importance score.</p></dd>
+data.table with as many rows as features and two columns <code>feature</code> and <code>score</code> with <code>feature</code> being the id of the feature and <code>score</code> being the feature importance score.</p></dd>
 
 
 <dt><code>interaction_detector</code></dt>
@@ -158,14 +155,7 @@ Interaction detector.</p></dd>
 
 <dt><code>unconstrained_weight_table</code></dt>
 <dd><p>(<a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table::data.table</a>)<br>
-data.table with as many rows as features and two columns <code>feature_name</code> and <code>unconstrained_weight</code> with
-<code>feature_name</code> being the id of the feature and <code>unconstrained_weight</code> being the score based on an
-monotonicity detector. FIXME: rename</p></dd>
-
-
-<dt><code>n_interactions_prob</code></dt>
-<dd><p>(numeric(1) | NULL)<br>
-Probability to sample the number of pairwise interactions from a truncated geometric distribution. FIXME: not used</p></dd>
+data.table with as many rows as features and two columns <code>feature_name</code> and <code>unconstrained_weight</code> with <code>feature_name</code> being the id of the feature and <code>unconstrained_weight</code> being the score based on an <a href="MonotonicityDetector.html">MonotonicityDetector</a>.</p></dd>
 
 
 <dt><code>unconstrained</code></dt>
@@ -187,7 +177,7 @@ constrained with respect to a monotone feature effect.</p></dd>
 
 <div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
-<p>A (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) of character vectors with each character vector containing names of features that are in the same group.</p>
+<p>A (list()) of character vectors with each character vector containing names of features that are in the same group.</p>
 </div>
 
 </div><p></p><hr><a id="method-GroupStructure-get_matrix"></a><div class="section">
@@ -199,7 +189,7 @@ constrained with respect to a monotone feature effect.</p></dd>
 
 <div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
-<p>A (<code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix()</a></code>) filled with integers indicating allowance of pairwise interaction of selected features.</p>
+<p>A (matrix()) filled with integers indicating allowance of pairwise interaction of selected features.</p>
 </div>
 
 </div><p></p><hr><a id="method-GroupStructure-create_selector"></a><div class="section">
@@ -223,7 +213,7 @@ constrained with respect to a monotone feature effect.</p></dd>
 
 <div class="section">
 <h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
-<p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) of integer vectors of feature indices allowed to interact with each other.</p>
+<p>(list()) of integer vectors of feature indices allowed to interact with each other.</p>
 </div>
 
 </div><p></p><hr><a id="method-GroupStructure-create_monotonicity_constraints"></a><div class="section">
@@ -235,7 +225,7 @@ constrained with respect to a monotone feature effect.</p></dd>
 
 <div class="section">
 <h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
-<p>Named (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>) vector of monotonicity constraints of selected features.</p>
+<p>Named (integer()) vector of monotonicity constraints of selected features.</p>
 </div>
 
 </div><p></p><hr><a id="method-GroupStructure-get_full_group_structure"></a><div class="section">
@@ -248,12 +238,12 @@ constrained with respect to a monotone feature effect.</p></dd>
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>eqcs</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
-List containing a (<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>) vector of selected features, an (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>) vector of equivalence classes ids and an (1integer()`) vector indicating the equivalence class each feature belongs to.</p></dd>
+<dd><p>(list())<br>
+List containing a (character()) vector of selected features, an (integer()) vector of equivalence classes ids and an (integer()) vector indicating the equivalence class each feature belongs to.</p></dd>
 
 
 <dt><code>unselected_features</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
+<dd><p>(character())<br>
 Character vector describing the set on unselected features</p></dd>
 
 
@@ -261,7 +251,7 @@ Character vector describing the set on unselected features</p></dd>
 </div>
 <div class="section">
 <h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
-<p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) similarly as <code>eqcs</code> but updated so that the unselected features now resample the first group (equivalence class)</p>
+<p>(list()) similarly as <code>eqcs</code> but updated so that the unselected features now resample the first group (equivalence class)</p>
 </div>
 
 </div><p></p><hr><a id="method-GroupStructure-mutate"></a><div class="section">
@@ -283,7 +273,7 @@ Numeric value between 0 and 1 specifying the mutation probability.</p></dd>
 </div>
 <div class="section">
 <h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
-<p>Invisible (<code>NULL</code>)</p>
+<p>Invisible (NULL)</p>
 </div>
 
 </div><p></p><hr><a id="method-GroupStructure-crossover"></a><div class="section">
@@ -313,7 +303,7 @@ Each crossing section is an integer vector of length 2, indicating the start and
 </div>
 <div class="section">
 <h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
-<p>Invisible (<code>NULL</code>)</p>
+<p>Invisible (NULL)</p>
 </div>
 
 </div><p></p><hr><a id="method-GroupStructure-get_crossing_sections"></a><div class="section">
@@ -335,7 +325,7 @@ of groups to be exchanged between the parents during crossover.</p><div class="s
 </div>
 <div class="section">
 <h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
-<p>A (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) containing the crossing sections for the first parent (<code>crossing_section1</code>) and second parent (<code>crossing_section2</code>).
+<p>A list() containing the crossing sections for the first parent (<code>crossing_section1</code>) and second parent (<code>crossing_section2</code>).
 Each crossing section is an integer vector of length 2, indicating the start and end points of the crossing section.</p>
 </div>
 

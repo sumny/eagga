@@ -46,7 +46,7 @@
     <p>This class provides a convenient way to manage and update probabilities used in mutation and crossover operations.
 It allows you to set individual probabilities for various operations, such as overall mutation, overall crossover,
 parameter mutation, parameter crossover, and group structure mutation.
-Future more flexible classes will likely inherit from this base class.</p>
+Future more flexible classes are likely to inherit from this base class.</p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -72,12 +72,12 @@ Numeric value between 0 and 1 specifying the hyperparameter crossover probabilit
 
 <dt><code>p_groupstructure_mutate</code></dt>
 <dd><p>(numeric(1))<br>
-Numeric value between 0 and 1 specifying the groupstructure mutation probability.</p></dd>
+Numeric value between 0 and 1 specifying the group structure mutation probability.</p></dd>
 
 
 <dt><code>p_groupstructure_crossover</code></dt>
 <dd><p>(numeric(1))<br>
-Numeric value between 0 and 1 specifying the groupstructure crossover probability.</p></dd>
+Numeric value between 0 and 1 specifying the group structure crossover probability.</p></dd>
 
 
 </dl><p></p></div>
@@ -109,32 +109,32 @@ Numeric value between 0 and 1 specifying the groupstructure crossover probabilit
 <p></p><div class="arguments"><dl><dt><code>p_overall_mutate</code></dt>
 <dd><p>(numeric(1))<br>
 Numeric value between 0 and 1 specifying the overall mutation probability.
-Default is 0.3.</p></dd>
+The default value is 0.3.</p></dd>
 
 
 <dt><code>p_overall_crossover</code></dt>
 <dd><p>(numeric(1))<br>
 Numeric value between 0 and 1 specifying the overall crossover probability.
-This overall crossover probability is also used for the groupstructure crossover probability.
-Default is 0.7</p></dd>
+This overall crossover probability is also used for the group structure crossover probability.
+The default value is 0.7.</p></dd>
 
 
 <dt><code>p_param_mutate</code></dt>
 <dd><p>(numeric(1))<br>
 Numeric value between 0 and 1 specifying the hyperparameter mutation probability.
-Default is 0.2.</p></dd>
+The default value is 0.2.</p></dd>
 
 
 <dt><code>p_param_crossover</code></dt>
 <dd><p>(numeric(1))<br>
 Numeric value between 0 and 1 specifying the hyperparameter crossover probability.
-Default is 0.5.</p></dd>
+The default value is 0.5.</p></dd>
 
 
 <dt><code>p_groupstructure_mutate</code></dt>
 <dd><p>(numeric(1))<br>
-Numeric value between 0 and 1 specifying the groupstructure mutation probability.
-Default is 0.2.</p></dd>
+Numeric value between 0 and 1 specifying the group structure mutation probability.
+The default value is 0.2.</p></dd>
 
 
 </dl><p></p></div>
@@ -150,7 +150,7 @@ Default is 0.2.</p></dd>
 
 <div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
-<p>Invisible <code>NULL</code></p>
+<p>Invisible (<code>NULL</code>)</p>
 </div>
 
 </div><p></p><hr><a id="method-Probs-clone"></a><div class="section">
