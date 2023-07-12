@@ -1,6 +1,8 @@
 # r cmd check workflow of the mlr3 ecosystem v0.2.0
 # https://github.com/mlr-org/actions
 on:
+  schedule:
+    - cron: "0 0 * * 0" # runs every Sunday at midnight UTC
   workflow_dispatch:
   push:
     branches:
