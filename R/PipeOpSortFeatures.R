@@ -1,8 +1,8 @@
-#' @title Sort Features alphabetically
+#' @title Sort Features Alphabetically
 #'
 #' @description
-#' A very simple [mlr3pipelines::PipeOp] to make really sure that the `$feature` vector of the `$col_roles` active binding of a [mlr3::Task] is ordered alphabetically.
-#' Inherits from [mlr3pipelines::PipeOpTaskPreprocSimple].
+#' A simple [mlr3pipelines::PipeOp] that ensures the `$feature` vector of the `$col_roles` active binding of a [mlr3::Task] is ordered alphabetically.
+#' This pipe operation inherits from [mlr3pipelines::PipeOpTaskPreprocSimple].
 #'
 #' @export
 PipeOpSortFeatures = R6Class("PipeOpSortFeatures",

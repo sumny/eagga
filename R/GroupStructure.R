@@ -15,21 +15,16 @@ GroupStructure = R6Class("GroupStructure",
     #' @param n_selected (integer(1))\cr
     #'   Number of selected features.
     #' @param scores ([data.table::data.table])\cr
-    #'   data.table with as many rows as features and two columns `feature` and `score` with `feature` being the id of
-    #'   the feature and `score` being the feature importance score.
+    #'   data.table with as many rows as features and two columns `feature` and `score` with `feature` being the id of the feature and `score` being the feature importance score.
     #' @param interaction_detector (InteractionDetector)\cr
     #'   Interaction detector. 
     #' @param unconstrained_weight_table ([data.table::data.table])\cr
-    #'   data.table with as many rows as features and two columns `feature_name` and `unconstrained_weight` with
-    #'   `feature_name` being the id of the feature and `unconstrained_weight` being the score based on an
-    #'   monotonicity detector. FIXME: rename
-    #' @param n_interactions_prob (numeric(1) | NULL)\cr
-    #'   Probability to sample the number of pairwise interactions from a truncated geometric distribution. FIXME: not used
+    #'   data.table with as many rows as features and two columns `feature_name` and `unconstrained_weight` with `feature_name` being the id of the feature and `unconstrained_weight` being the score based on an [MonotonicityDetector].
     #' @param unconstrained (logical(1)) \cr
     #'   Whether an unconstrained group structure should be created.
     #'   This means that all features are selected and all features are allowed to interact and no features are
     #'   constrained with respect to a monotone feature effect.
-    initialize = function(task, n_selected = NULL, scores = NULL, interaction_detector = NULL, unconstrained_weight_table = NULL, n_interactions_prob = NULL, unconstrained = FALSE) {
+    initialize = function(task, n_selected = NULL, scores = NULL, interaction_detector = NULL, unconstrained_weight_table = NULL, unconstrained = FALSE) {
       self$allow_all_unselected = FALSE  # default at least two groups (unselected and one selected)
       # checks and feature names
       assert_task(task, feature_types = c("integer", "numeric"))
@@ -89,13 +84,12 @@ GroupStructure = R6Class("GroupStructure",
 
     #' @field feature_names (character()) \cr
     #'   The names of the features of the [mlr3::Task].
-    #'   FIXME: make private or AB
     feature_names = NULL,
 
     #' @description
     #' Method to get a more human readable representation of the group structure.
     #'
-    #' @return A (`list()`) of character vectors with each character vector containing names of features that are in the same group.
+    #' @return A (list()) of character vectors with each character vector containing names of features that are in the same group.
     get_groups = function() {
       map(self$groups$eqcs, function(eqc) {
         self$groups$features[self$groups$belonging == eqc]
@@ -105,7 +99,7 @@ GroupStructure = R6Class("GroupStructure",
     #' @description
     #' Method to get the pairwise interaction matrix of features.
     #'
-    #' @return A (`matrix()`) filled with integers indicating allowance of pairwise interaction of selected features.
+    #' @return A (matrix()) filled with integers indicating allowance of pairwise interaction of selected features.
     get_matrix = function() {
       x = self$get_groups()[-1L]  # first one is the unselected
 
@@ -141,7 +135,7 @@ GroupStructure = R6Class("GroupStructure",
     #' @description
     #' Method to create a list of interaction constraints of features.
     #' 
-    #' @return (`list()`) of integer vectors of feature indices allowed to interact with each other.
+    #' @return (list()) of integer vectors of feature indices allowed to interact with each other.
     create_interaction_constraints = function() {
       I = list(I = self$get_matrix(), classes = map(self$get_groups()[-1L], function(x) match(x, self$selected_features)))
       interaction_constraints = I$classes
@@ -157,7 +151,7 @@ GroupStructure = R6Class("GroupStructure",
     #' @description
     #' Method to create an integer vector of monotonicity constraints of selected features.
     #'
-    #' @return Named (`integer()`) vector of monotonicity constraints of selected features.
+    #' @return Named (integer()) vector of monotonicity constraints of selected features.
     create_monotonicity_constraints = function() {
       monotone_features = na.omit(self$monotone_features)
       stopifnot(setequal(monotone_features$feature, self$selected_features))
@@ -172,12 +166,12 @@ GroupStructure = R6Class("GroupStructure",
     #' @description
     #' Method to create the full group structure based on the equivalence classes of features allowed to interact and the unselected features forming the first group.
     #'
-    #' @param eqcs (`list()`)\cr
-    #'   List containing a (`character()`) vector of selected features, an (`integer()`) vector of equivalence classes ids and an (1integer()`) vector indicating the equivalence class each feature belongs to.
-    #' @param unselected_features (`character()`)\cr
+    #' @param eqcs (list())\cr
+    #'   List containing a (character()) vector of selected features, an (integer()) vector of equivalence classes ids and an (integer()) vector indicating the equivalence class each feature belongs to.
+    #' @param unselected_features (character())\cr
     #'   Character vector describing the set on unselected features
     #'
-    #' @return (`list()`) similarly as `eqcs` but updated so that the unselected features now resample the first group (equivalence class)
+    #' @return (list()) similarly as `eqcs` but updated so that the unselected features now resample the first group (equivalence class)
     get_full_group_structure = function(eqcs, unselected_features) {
       eqcs$eqcs = eqcs$eqcs + 1L  # 1 is now the unselected group
       eqcs$belonging = eqcs$belonging + 1L
@@ -201,7 +195,7 @@ GroupStructure = R6Class("GroupStructure",
    #' @param p (numeric(1))\cr
    #'   Numeric value between 0 and 1 specifying the mutation probability.
    #'
-   #' @return Invisible (`NULL`)
+   #' @return Invisible (NULL)
     mutate = function(p) {
       # create a new group, taking members from 1 (monotone_eqcs then 0)
       # destroy a group, put members in 1
@@ -267,7 +261,7 @@ GroupStructure = R6Class("GroupStructure",
     #'   The crossing sections define the boundaries of groups to be exchanged between the parents.
     #'   Each crossing section is an integer vector of length 2, indicating the start and end points of the crossing section.
     #'
-    #' @return Invisible (`NULL`)
+    #' @return Invisible (NULL)
     crossover = function(parent2, crossing_sections) {
       # parent1 is self$groups
       # parent2 is $groups of another GroupStructure
@@ -354,7 +348,7 @@ GroupStructure = R6Class("GroupStructure",
     #'
     #' @param parent2 A `$groups` of a [GroupStructure] object representing the second parent.
     #'
-    #' @return A (`list()`) containing the crossing sections for the first parent (`crossing_section1`) and second parent (`crossing_section2`).
+    #' @return A list() containing the crossing sections for the first parent (`crossing_section1`) and second parent (`crossing_section2`).
     #'   Each crossing section is an integer vector of length 2, indicating the start and end points of the crossing section.
     get_crossing_sections = function(parent2) {
       # parent1 is self$groups

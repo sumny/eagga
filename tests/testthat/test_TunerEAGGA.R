@@ -76,7 +76,18 @@ test_that("TunerEAGGA on classif works", {
   expect_integerish(instance$archive$data$generation)
   expect_true(max(instance$archive$data$generation) == 5L)
   expect_true(all(instance$archive$data$status %in% c("alive", "dead")))
-  expect_true(sum(instance$archive$best()$status == "alive") == 10L)
+  expect_true(sum(instance$archive$data$status == "alive") == 10L)
+
+  # optimization is useful
+  expect_true(any(instance$archive$best()[["classif.ce"]] < 0.5))
+  expect_true(any(instance$archive$best()[["selected_features_proxy"]] < 1))
+  expect_true(any(instance$archive$best()[["selected_interactions_proxy"]] < 1))
+  expect_true(any(instance$archive$best()[["selected_non_monotone_proxy"]] < 1))
+
+  expect_true(var(instance$archive$best()[["classif.ce"]]) > 0)
+  expect_true(var(instance$archive$best()[["selected_features_proxy"]]) > 0)
+  expect_true(var(instance$archive$best()[["selected_interactions_proxy"]]) > 0)
+  expect_true(var(instance$archive$best()[["selected_non_monotone_proxy"]]) > 0)
 
   # FIXME:
   expect_class(instance$objective$learner$param_set$values[["colapply.affect_columns"]], classes = "Selector")
@@ -91,7 +102,7 @@ test_that("TunerEAGGA on classif works", {
   #private$.unconstrained_weight_table
   #private$.switch_sign_affected
 
-  # FIXME: more tests?
+  # FIXME: more tests about same group structure and proxy measures
   expect_error(reconstruct_eagga_model(instance, tuner = tuner, model_uhash = "test"), "Assertion on 'model_uhash' failed")
   trained_learner = reconstruct_eagga_model(instance, tuner = tuner, model_uhash = instance$archive$best()$uhash[1L])
   expect_learner(trained_learner, task = task)
@@ -99,4 +110,6 @@ test_that("TunerEAGGA on classif works", {
   predictions = trained_learner$predict(task)
   expect_prediction(predictions)
   expect_numeric(predictions$score(measures), lower = 0, upper = 1)
+
+  # FIXME: also test regr works
 })

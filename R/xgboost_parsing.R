@@ -1,4 +1,29 @@
+# helper function to parse an xgboost tree model
+# the following code is taken from the xgboost R package version 2.0.0.1 licensed under Apache License, Version 2.0
 # https://github.com/dmlc/xgboost/blob/master/R-package/R/xgb.model.dt.tree.R
+#
+# Copyright 2023 Tianqi Chen and XBGoost Contributors
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# The following minimal changes were made:
+# `text = xgb.dump(model = model, with_stats = TRUE)`
+# changed to
+# `text = xgboost::xgb.dump(model = model, with_stats = TRUE)
+# `sum(grepl('leaf=(\\d+)|leaf=(\\d+)', text)) < 1)`
+# changed to
+# `sum(grepl('leaf=([+-]\\d+)|leaf=(\\d+)', text)) < 1)
+# Changed assign operator `<-` to `=`
 xgb_model_dt_tree = function(feature_names = NULL, model = NULL, text = NULL, trees = NULL, use_int_id = FALSE, ...) {
   if (!inherits(model, "xgb.Booster") && !is.character(text)) {
     stop("Either 'model' must be an object of class xgb.Booster\n",
@@ -108,92 +133,67 @@ xgb_model_dt_tree = function(feature_names = NULL, model = NULL, text = NULL, tr
   td[order(Tree, Node)]
 }
 
-interactions = function(xgb_model, option = "pairs") {
-  Child = Parent = Feature = sumGain = . = NULL
-
+# helper function to get interactions of features in an xgboost tree model
+# NOTE: currently we only use it so see which pairs of features interact
+#       we could speed things up drastically by not doing the gain calculations
+get_interactions = function(xgb_model, option = "pairs") {
   if (option == "pairs") {
-    gainTable = calculatePairsGainTable(xgb_model)
+    gain_table = calculate_pairs_gain_table(xgb_model)
   }
-  class(gainTable) = c("interactions", "data.table")
-  return(gainTable)
-
+  gain_table
 }
 
-calculatePairsGainTable = function(xgb_model) {
-  name_pair = childsGain = Parent = Child = sumGain = N = . = NULL
-
-  treeList = calculateGain(xgb_model)
-  trees = rbindlist(treeList, fill = TRUE)
+# helper function to extract pairs of features used in splits and their gain in an xgboost tree model
+calculate_pairs_gain_table = function(xgb_model) {
+  list_of_trees = calculate_gain(xgb_model)
+  trees = rbindlist(list_of_trees, fill = TRUE)
   if ("name_pair" %nin% colnames(trees)) {
     trees[, name_pair := NA_character_]
-    importance = data.table(Parent = character(), Child = character(), sumGain = numeric(), frequency = integer())
-    return(importance)
+    importance = data.table(Parent = character(), Child = character(), Sum_gain = numeric(), Frequency = integer())
+    return(importance)  # early exit
   }
 
-  importanceCount = data.table(table(trees[, "name_pair"],dnn = "name_pair"))
-  importanceGain = trees[, .(sumGain = sum(childsGain)), by = "name_pair"]
-  importance = merge(importanceCount, importanceGain, by = "name_pair")
-  importance =
-  importance[, `:=`(Parent = as.vector(unlist(map(strsplit(importance[, name_pair], "[:]"), 1))),
-                    Child = as.vector(unlist(map(strsplit(importance[, name_pair], "[:]"), 2))))]
-  importance = importance[, -1]
-  setorderv(importance, "sumGain", -1)
+  importance_count = data.table(table(trees[, "name_pair"], dnn = "name_pair"))
+  importance_gain = trees[, .(Sum_gain = sum(childs_gain)), by = "name_pair"]
+  importance = merge(importance_count, y = importance_gain, by = "name_pair")
+  importance = importance[, `:=`(Parent = map_chr(strsplit(importance[, name_pair], "[:]"), 1L), Child = map_chr(strsplit(importance[, name_pair], "[:]"), 2L))]
+  importance = importance[, -1L]
+  setorderv(importance, cols = "Sum_gain", order = -1L)
 
-  return(importance[,.(Parent, Child, sumGain, frequency = N)])
+  importance[, .(Parent, Child, Sum_gain, Frequency = N)]
 }
 
-calculateGain = function(xgb.model) {
-
-  leaf = Feature = Yes = No = ID = parentsGain = Quality = parentsCover =
-    Cover = name_pair = childsGain = depth = parentsName = NULL
-
-  trees = tableOfTrees(xgb.model)
+# helper function to calculate the gain of each split in each tree of an xgboost tree model
+calculate_gain = function(xgbmodel) {
+  trees = get_table_of_trees(xgbmodel)
   trees[, leaf := Feature == "Leaf"]
-  trees$depth = 0
-  treeList = split(trees, as.factor(trees$Tree))
+  trees$depth = 0L
+  list_of_trees = split(trees, as.factor(trees$Tree))
 
-  for (tree in treeList) {
+  for (tree in list_of_trees) {
     num_nodes = nrow(tree)
-    non_leaf_rows = which(tree[, leaf] == F)
+    non_leaf_rows = which(tree[, leaf] == FALSE)
     for (r in non_leaf_rows) {
       left = tree[r, Yes]
       right = tree[r, No]
-      if (tree[ID == left, leaf] == F) {
-       # newDepth = tree[r , depth] + 1
-        tree[ID == left,`:=`(parentsGain = tree[r, Quality],
-                             parentsCover = tree[r, Cover],
-                             name_pair = paste(tree[r, Feature], tree[ID == left, Feature], sep = ":"),
-                             childsGain = Quality,
-                             depth = tree[r , depth] + 1,
-                             parentsName = tree[r, Feature])]
-        tree[ID == left, interaction := ((parentsGain < childsGain) & (Feature != parentsName))]
+      if (tree[ID == left, leaf] == FALSE) {
+        tree[ID == left,`:=`(parents_gain = tree[r, Quality], parents_cover = tree[r, Cover], name_pair = paste(tree[r, Feature], tree[ID == left, Feature], sep = ":"), childs_gain = Quality, depth = tree[r, depth] + 1L, parents_name = tree[r, Feature])]
+        tree[ID == left, interaction := ((parents_gain < childs_gain) & (Feature != parents_name))]
       }
-
-      if (tree[ID == right, leaf]==F) {
-
-        #newDepth = tree[r , depth] + 1
-        tree[ID == right, `:=`(parentsGain = tree[r, Quality],
-                               parentsCover = tree[r, Cover],
-                               name_pair = paste(tree[r, Feature], tree[ID == right, Feature], sep = ":"),
-                               childsGain = Quality,
-                               depth = tree[r , depth] + 1,
-                               parentsName = tree[r, Feature])]
-        tree[ID == right, interaction := ((parentsGain < childsGain) & (Feature != parentsName))]
+      if (tree[ID == right, leaf] == FALSE) {
+        tree[ID == right, `:=`(parents_gain = tree[r, Quality], parents_cover = tree[r, Cover], name_pair = paste(tree[r, Feature], tree[ID == right, Feature], sep = ":"), childs_gain = Quality, depth = tree[r, depth] + 1L, parents_name = tree[r, Feature])]
+        tree[ID == right, interaction := ((parents_gain < childs_gain) & (Feature != parents_name))]
       }
     }
   }
-
-  return(treeList)
+  list_of_trees
 }
 
-tableOfTrees = function(model, ...) {
-  count = split_feature = leaf_count = internal_count =
-    split_index = tree_index = leaf_index = threshold =
-    leaf_value = split_gain = flag = node_parent = leaf_parent=
-    Node = Feature = . = Cover = Yes = No = ID =
-    Tree= Quality = Missing =Leaf_old_num= Split = NULL
-  if(class(model)[1] == "xgb.Booster") {
-    return(xgb_model_dt_tree(model = model, ...)[])
+# helper function to represent the internal structure of an xgboost tree model
+get_table_of_trees = function(model, ...) {
+  if (class(model)[1L] == "xgb.Booster") {
+    xgb_model_dt_tree(model = model, ...)[]
   }
+  # could add support for other tree based models
 }
 

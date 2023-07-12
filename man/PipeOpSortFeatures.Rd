@@ -2,10 +2,10 @@
 % Please edit documentation in R/PipeOpSortFeatures.R
 \name{PipeOpSortFeatures}
 \alias{PipeOpSortFeatures}
-\title{Sort Features alphabetically}
+\title{Sort Features Alphabetically}
 \description{
-A very simple \link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp} to make really sure that the \verb{$feature} vector of the \verb{$col_roles} active binding of a \link[mlr3:Task]{mlr3::Task} is ordered alphabetically.
-Inherits from \link[mlr3pipelines:PipeOpTaskPreprocSimple]{mlr3pipelines::PipeOpTaskPreprocSimple}.
+A simple \link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp} that ensures the \verb{$feature} vector of the \verb{$col_roles} active binding of a \link[mlr3:Task]{mlr3::Task} is ordered alphabetically.
+This pipe operation inherits from \link[mlr3pipelines:PipeOpTaskPreprocSimple]{mlr3pipelines::PipeOpTaskPreprocSimple}.
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpTaskPreproc]{mlr3pipelines::PipeOpTaskPreproc}} -> \code{\link[mlr3pipelines:PipeOpTaskPreprocSimple]{mlr3pipelines::PipeOpTaskPreprocSimple}} -> \code{PipeOpSortFeatures}

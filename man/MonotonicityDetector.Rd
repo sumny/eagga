@@ -4,43 +4,41 @@
 \alias{MonotonicityDetector}
 \title{Monotonicity Detector}
 \description{
-Detects whether a feature should have a monotone increasing or decreasing effect (if enforced) and also quantifies
+Detects whether a feature should have a monotone increasing or decreasing effect (if enforced) and quantifies
 the tendency of a monotone relationship between the feature and the target.
 
-Only works with integer or numeric features.
+This detector utilizes decision trees to fit the feature and target variable using subsampled data and calculates
+Spearman's Rho between the predicted values (numeric for regression and probability of the positive class for
+binary classification) and the feature.
+The Spearman's Rho values serve as indicators of the presence of a monotone relationship between features and the target
+and can also help infer the sign of the feature if it should be constrained to have a monotone effect.
+
+Note that this detector only works with integer or numeric features.
 Logical features must be converted to integers.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{task}}{(\link[mlr3:Task]{mlr3::Task})\cr
-Task.}
-
-\item{\code{classification}}{(logical(1))\cr
-Whether the task is a classification task.}
-
-\item{\code{data}}{(\link[data.table:data.table]{data.table::data.table})\cr
-data.table of data of the \link[mlr3:Task]{mlr3::Task}.}
+The task.}
 
 \item{\code{n_features}}{(integer(1))\cr
-Number of features part of the \link[mlr3:Task]{mlr3::Task}.}
+The number of features in the \link[mlr3:Task]{mlr3::Task}.}
 
 \item{\code{feature_names}}{(character()) \cr
-The names of the features of the \link[mlr3:Task]{mlr3::Task}.}
+The names of the features in the \link[mlr3:Task]{mlr3::Task}.}
 
 \item{\code{feature_types}}{(character()) \cr
-The types of the features of the \link[mlr3:Task]{mlr3::Task}.}
-
-\item{\code{y_name}}{(character(1)) \cr
-The names of the target of the \link[mlr3:Task]{mlr3::Task}.}
+The types of the features in the \link[mlr3:Task]{mlr3::Task}.}
 
 \item{\code{rho_table}}{(\link[data.table:data.table]{data.table::data.table})\cr
-data.table with as many rows as features with the feature_name column indicating the feature and the rho column
-indicating Spearman's Rho.}
+A data.table with as many rows as features.
+It has a "feature_name" column indicating the feature and a "rho" column indicating Spearman's Rho.}
 
 \item{\code{unconstrained_weight_table}}{(\link[data.table:data.table]{data.table::data.table})\cr
-data.table with as many rows as features with the feature_name column indicating the feature and the unconstrained_weight column
-indicating the absolute Spearman's Rho scaled rescaled to \verb{[0.2, 0.8]}.}
+A data.table with as many rows as features.
+It has a "feature_name" column indicating the feature and an "unconstrained_weight" column indicating 1 minus the absolute
+Spearman's Rho rescaled to the range \verb{[0.2, 0.8]}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -48,9 +46,9 @@ indicating the absolute Spearman's Rho scaled rescaled to \verb{[0.2, 0.8]}.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-MonotonicityDetectorDetector-new}{\code{MonotonicityDetector$new()}}
-\item \href{#method-MonotonicityDetectorDetector-compute}{\code{MonotonicityDetector$compute()}}
+\item \href{#method-MonotonicityDetectorDetector-compute_rho_table}{\code{MonotonicityDetector$compute_rho_table()}}
 \item \href{#method-MonotonicityDetectorDetector-get_sign}{\code{MonotonicityDetector$get_sign()}}
-\item \href{#method-MonotonicityDetectorDetector-compute_unconstrained_weights}{\code{MonotonicityDetector$compute_unconstrained_weights()}}
+\item \href{#method-MonotonicityDetectorDetector-compute_unconstrained_weight_table}{\code{MonotonicityDetector$compute_unconstrained_weight_table()}}
 \item \href{#method-MonotonicityDetectorDetector-clone}{\code{MonotonicityDetector$clone()}}
 }
 }
@@ -67,33 +65,34 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{task}}{([mlr3::Task)\cr
-Task.}
+The task.}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-MonotonicityDetectorDetector-compute"></a>}}
-\if{latex}{\out{\hypertarget{method-MonotonicityDetectorDetector-compute}{}}}
-\subsection{Method \code{compute()}}{
-Fits a decision tree for each feature and the target variable using subsampled data and calculates Spearman's Rho between the prediction (numeric for regression and probability of the
-positive class for binary classification) and the feature.
-Repeats this process for each feature ten times and averages the Spearman's Rhos to fill the \verb{$rho_table}
-Subsampling fraction is set to \code{0.9} and the decision tree is a standard \link[mlr3:LearnerRegr]{mlr3::LearnerRegr} or \link[mlr3:LearnerClassif]{mlr3::LearnerClassif}.
-FIXME: expose hyperparameters etc.
+\if{html}{\out{<a id="method-MonotonicityDetectorDetector-compute_rho_table"></a>}}
+\if{latex}{\out{\hypertarget{method-MonotonicityDetectorDetector-compute_rho_table}{}}}
+\subsection{Method \code{compute_rho_table()}}{
+Fits a decision tree for each feature and the target variable using subsampled data and calculates Spearman's Rho
+between the predicted values (numeric for regression and probability of the positive class for binary classification)
+and the feature. This process is repeated for each feature ten times, and the average Spearman's Rho values are stored
+in the \verb{$rho_table}. The subsampling fraction is set to \code{0.9}, and the decision tree used is a standard
+\link[mlr3:LearnerRegr]{mlr3::LearnerRegr} or \link[mlr3:LearnerClassif]{mlr3::LearnerClassif}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MonotonicityDetector$compute()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{MonotonicityDetector$compute_rho_table()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-Invisible (\code{NULL})
+Invisible (NULL)
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-MonotonicityDetectorDetector-get_sign"></a>}}
 \if{latex}{\out{\hypertarget{method-MonotonicityDetectorDetector-get_sign}{}}}
 \subsection{Method \code{get_sign()}}{
-Method to determine the sign of a given feature based on the average Spearman's Rho correlation if it should be constrained to have a monotone effect.
+Determines the sign of a given feature based on the average Spearman's Rho correlation, if the feature should be
+constrained to have a monotone effect.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{MonotonicityDetector$get_sign(feature_name)}\if{html}{\out{</div>}}
 }
@@ -101,27 +100,26 @@ Method to determine the sign of a given feature based on the average Spearman's 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{feature_name}}{(\code{character(1)})\cr
-Feature for which the sign should be determined}
+\item{\code{feature_name}}{(character(1))\cr
+The feature for which the sign should be determined.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(\code{integer()}) vector indicating the sign of the feature if it should be constrained to have a monotone effect
+An integer vector indicating the sign of the feature if it should be constrained to have a monotone effect.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-MonotonicityDetectorDetector-compute_unconstrained_weights"></a>}}
-\if{latex}{\out{\hypertarget{method-MonotonicityDetectorDetector-compute_unconstrained_weights}{}}}
-\subsection{Method \code{compute_unconstrained_weights()}}{
-Method to construct the unconstrained weights table from the average Spearman's Rhos by taking the absolute value
-and scaling it to \verb{[0.2, 0.8]}.
+\if{html}{\out{<a id="method-MonotonicityDetectorDetector-compute_unconstrained_weight_table"></a>}}
+\if{latex}{\out{\hypertarget{method-MonotonicityDetectorDetector-compute_unconstrained_weight_table}{}}}
+\subsection{Method \code{compute_unconstrained_weight_table()}}{
+Constructs the unconstrained weights table from the average Spearman's Rhos by taking 1 minus the absolute value and scaling it to the range \verb{[0.2, 0.8]}.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{MonotonicityDetector$compute_unconstrained_weights()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{MonotonicityDetector$compute_unconstrained_weight_table()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-Invisible (\code{NULL})
+Invisible (NULL)
 }
 }
 \if{html}{\out{<hr>}}

@@ -10,8 +10,7 @@ Class to represent a group structure.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{feature_names}}{(character()) \cr
-The names of the features of the \link[mlr3:Task]{mlr3::Task}.
-FIXME: make private or AB}
+The names of the features of the \link[mlr3:Task]{mlr3::Task}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -76,7 +75,6 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   scores = NULL,
   interaction_detector = NULL,
   unconstrained_weight_table = NULL,
-  n_interactions_prob = NULL,
   unconstrained = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -91,19 +89,13 @@ Task.}
 Number of selected features.}
 
 \item{\code{scores}}{(\link[data.table:data.table]{data.table::data.table})\cr
-data.table with as many rows as features and two columns \code{feature} and \code{score} with \code{feature} being the id of
-the feature and \code{score} being the feature importance score.}
+data.table with as many rows as features and two columns \code{feature} and \code{score} with \code{feature} being the id of the feature and \code{score} being the feature importance score.}
 
 \item{\code{interaction_detector}}{(InteractionDetector)\cr
 Interaction detector.}
 
 \item{\code{unconstrained_weight_table}}{(\link[data.table:data.table]{data.table::data.table})\cr
-data.table with as many rows as features and two columns \code{feature_name} and \code{unconstrained_weight} with
-\code{feature_name} being the id of the feature and \code{unconstrained_weight} being the score based on an
-monotonicity detector. FIXME: rename}
-
-\item{\code{n_interactions_prob}}{(numeric(1) | NULL)\cr
-Probability to sample the number of pairwise interactions from a truncated geometric distribution. FIXME: not used}
+data.table with as many rows as features and two columns \code{feature_name} and \code{unconstrained_weight} with \code{feature_name} being the id of the feature and \code{unconstrained_weight} being the score based on an \link{MonotonicityDetector}.}
 
 \item{\code{unconstrained}}{(logical(1)) \cr
 Whether an unconstrained group structure should be created.
@@ -123,7 +115,7 @@ Method to get a more human readable representation of the group structure.
 }
 
 \subsection{Returns}{
-A (\code{list()}) of character vectors with each character vector containing names of features that are in the same group.
+A (list()) of character vectors with each character vector containing names of features that are in the same group.
 }
 }
 \if{html}{\out{<hr>}}
@@ -136,7 +128,7 @@ Method to get the pairwise interaction matrix of features.
 }
 
 \subsection{Returns}{
-A (\code{matrix()}) filled with integers indicating allowance of pairwise interaction of selected features.
+A (matrix()) filled with integers indicating allowance of pairwise interaction of selected features.
 }
 }
 \if{html}{\out{<hr>}}
@@ -162,7 +154,7 @@ Method to create a list of interaction constraints of features.
 }
 
 \subsection{Returns}{
-(\code{list()}) of integer vectors of feature indices allowed to interact with each other.
+(list()) of integer vectors of feature indices allowed to interact with each other.
 }
 }
 \if{html}{\out{<hr>}}
@@ -175,7 +167,7 @@ Method to create an integer vector of monotonicity constraints of selected featu
 }
 
 \subsection{Returns}{
-Named (\code{integer()}) vector of monotonicity constraints of selected features.
+Named (integer()) vector of monotonicity constraints of selected features.
 }
 }
 \if{html}{\out{<hr>}}
@@ -190,16 +182,16 @@ Method to create the full group structure based on the equivalence classes of fe
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{eqcs}}{(\code{list()})\cr
-List containing a (\code{character()}) vector of selected features, an (\code{integer()}) vector of equivalence classes ids and an (1integer()`) vector indicating the equivalence class each feature belongs to.}
+\item{\code{eqcs}}{(list())\cr
+List containing a (character()) vector of selected features, an (integer()) vector of equivalence classes ids and an (integer()) vector indicating the equivalence class each feature belongs to.}
 
-\item{\code{unselected_features}}{(\code{character()})\cr
+\item{\code{unselected_features}}{(character())\cr
 Character vector describing the set on unselected features}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(\code{list()}) similarly as \code{eqcs} but updated so that the unselected features now resample the first group (equivalence class)
+(list()) similarly as \code{eqcs} but updated so that the unselected features now resample the first group (equivalence class)
 }
 }
 \if{html}{\out{<hr>}}
@@ -221,7 +213,7 @@ Numeric value between 0 and 1 specifying the mutation probability.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Invisible (\code{NULL})
+Invisible (NULL)
 }
 }
 \if{html}{\out{<hr>}}
@@ -249,7 +241,7 @@ Each crossing section is an integer vector of length 2, indicating the start and
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Invisible (\code{NULL})
+Invisible (NULL)
 }
 }
 \if{html}{\out{<hr>}}
@@ -271,7 +263,7 @@ of groups to be exchanged between the parents during crossover.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A (\code{list()}) containing the crossing sections for the first parent (\code{crossing_section1}) and second parent (\code{crossing_section2}).
+A list() containing the crossing sections for the first parent (\code{crossing_section1}) and second parent (\code{crossing_section2}).
 Each crossing section is an integer vector of length 2, indicating the start and end points of the crossing section.
 }
 }

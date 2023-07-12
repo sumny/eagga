@@ -4,38 +4,70 @@
 \alias{InteractionDetector}
 \title{Interaction Detector}
 \description{
-Detects important pairwise interactions following the methodology proposed in Lou et al. (2013)
-FIXME: cite
+Interaction Detector
 
-Only works with integer or numeric features.
-Logical features must be converted to integers.
+Interaction Detector
+}
+\details{
+Detects important pairwise interactions using a simple interaction detector inspired by the more sophisticated
+methodology proposed in Lou et al. (2013).
+
+In contrast to the original FAST algorithm, this detector is a crude implementation.
+It discretizes all features based on relatively small grid sizes, and the same unique grid values are used as
+potential cut points to find the best pair of cut points for each feature pair that results in the largest decrease
+in the residual sum of squares.
+
+Additionally, please note that targets are simply converted to numeric values in the case of a \link[mlr3:TaskClassif]{mlr3::TaskClassif}, instead of working on
+logits or model outputs of a previously computed proxy model.
+
+Overall, it is important to remember that this detector is solely used to initialize the group structures of the initial population
+within \link{TunerEAGGA}. Therefore, some impreciseness is acceptable.
+
+This interaction detector only works with integer or numeric features. Logical features must be converted to integers.
+}
+\references{
+\itemize{
+\item Lou, Yin, Caruana, Rich, Gehrke, Johannes, Hooker, Giles (2013).
+\dQuote{Accurate Intelligible Models with Pairwise Interactions.}
+In \emph{Proceedings of the 19th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, 623--631.
+}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task})\cr
-Task.}
-
 \item{\code{xs}}{(\link[data.table:data.table]{data.table::data.table})\cr
-data.table of features of the \link[mlr3:Task]{mlr3::Task}.}
+Data.table of features from the \link[mlr3:Task]{mlr3::Task}.
+Note that feature values of each feature are discretized based on the corresponding feature grid in \verb{$grids}.}
 
 \item{\code{n_features}}{(integer(1))\cr
-Number of features part of the \link[mlr3:Task]{mlr3::Task}.}
+Number of features in the \link[mlr3:Task]{mlr3::Task}.}
 
 \item{\code{feature_names}}{(character()) \cr
-The names of the features of the \link[mlr3:Task]{mlr3::Task}.}
+Names of the features in the \link[mlr3:Task]{mlr3::Task}.}
 
 \item{\code{feature_types}}{(character()) \cr
-The types of the features of the \link[mlr3:Task]{mlr3::Task}.}
+Original types of the features in the \link[mlr3:Task]{mlr3::Task} prior to discretization.}
 
 \item{\code{y}}{(numeric())\cr
-Numeric target vector of the \link[mlr3:Task]{mlr3::Task}.}
+Numeric target vector of the \link[mlr3:Task]{mlr3::Task}.
+In the case of a \link[mlr3:TaskClassif]{mlr3::TaskClassif}, the label is simply converted to numeric.}
 
 \item{\code{grids}}{(list())\cr
-List of grids of size \code{grid_size} containing a grid of each feature.}
+List of grids containing a grid for each feature.
+Grids are constructed by computing quantiles on the feature with probabilities ranging from
+\code{seq(from = 0, to = 1, length.out = grid_size)}.
+For integer features, the resulting quantiles are rounded to the nearest integer, and the unique
+values are taken, which may result in a grid of smaller size than \code{grid_size}.}
+
+\item{\code{cuts}}{(list())\cr
+List of cut points containing cut points for each feature.
+Cut points for features are based on their unique values after discretization using their corresponding grid.}
 
 \item{\code{rss}}{(matrix())\cr
-Symmetric numeric matrix of dimension \code{n_features} times \code{n_features} containing the residual sum of squares for each pair of features.}
+Symmetric numeric matrix of dimensions \code{n_features} by \code{n_features} containing the reduction in the residual sum
+of squares for each pair of features.
+\code{NULL} after construction.
+To compute this, use \verb{$compute_best_rss}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -54,18 +86,26 @@ Symmetric numeric matrix of dimension \code{n_features} times \code{n_features} 
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{InteractionDetector$new(task, grid_size = 10L)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{InteractionDetector$new(task, grid_size = 11L)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{task}}{([mlr3::Task)\cr
-Task.}
+\item{\code{task}}{(\link[mlr3:Task]{mlr3::Task})\cr
+The task.}
 
 \item{\code{grid_size}}{(integer(1))\cr
-Grid size used to construct grids for each feature.
-Default is \code{10}.}
+The grid size used to construct a grid for each feature.
+The default value is \code{11}.
+A grid for a feature is constructed by computing quantiles on the feature with probabilities ranging from
+\code{seq(from = 0, to = 1, length.out = grid_size)}.
+If there are not at least three unique grid values that can be found based on quantiles (resulting in at least two bins
+for the discretized feature), the range of the feature is split into two intervals of equal width, and the corresponding
+interval points are used as grid values as a fallback.
+For integer features, the resulting quantiles are rounded to the nearest integer.
+Grid values are always assumed to be unique.
+Therefore, the actual number of unique grid values may be smaller than \code{grid_size}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -74,13 +114,13 @@ Default is \code{10}.}
 \if{html}{\out{<a id="method-InteractionDetector-compute_best_rss"></a>}}
 \if{latex}{\out{\hypertarget{method-InteractionDetector-compute_best_rss}{}}}
 \subsection{Method \code{compute_best_rss()}}{
-Method to compute the residual sum of squares for each pair of features, overwriting \verb{$rss}.
+Method to compute the reduction in the residual sum of squares for each pair of features, overwriting \verb{$rss}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InteractionDetector$compute_best_rss()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-Invisible (\code{NULL})
+Invisible (NULL)
 }
 }
 \if{html}{\out{<hr>}}
@@ -88,6 +128,7 @@ Invisible (\code{NULL})
 \if{latex}{\out{\hypertarget{method-InteractionDetector-get_eqcs_from_top_k}{}}}
 \subsection{Method \code{get_eqcs_from_top_k()}}{
 Retrieves equivalence classes (groups of features) based on the top k most important pairwise interactions.
+The interactions are determined by the reduction in the residual sum of squares for each pair of features.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{InteractionDetector$get_eqcs_from_top_k(k = 1L, features = NULL)}\if{html}{\out{</div>}}
 }
@@ -96,7 +137,8 @@ Retrieves equivalence classes (groups of features) based on the top k most impor
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{k}}{(integer(1))\cr
-The number of top interactions to consider.}
+The number of top interactions to consider.
+The default value is \code{1}.}
 
 \item{\code{features}}{(character() | NULL)\cr
 The features to consider for detecting interactions.
@@ -105,7 +147,7 @@ If not provided, all features will be used (default).}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(A named (integer()) vector indicating the equivalence class each feature belongs to
+A named integer vector indicating the equivalence class each feature belongs to.
 }
 }
 \if{html}{\out{<hr>}}

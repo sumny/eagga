@@ -10,7 +10,7 @@ Class to represent probabilities used in mutation and crossover operations.
 This class provides a convenient way to manage and update probabilities used in mutation and crossover operations.
 It allows you to set individual probabilities for various operations, such as overall mutation, overall crossover,
 parameter mutation, parameter crossover, and group structure mutation.
-Future more flexible classes will likely inherit from this base class.
+Future more flexible classes are likely to inherit from this base class.
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -28,10 +28,10 @@ Numeric value between 0 and 1 specifying the hyperparameter mutation probability
 Numeric value between 0 and 1 specifying the hyperparameter crossover probability.}
 
 \item{\code{p_groupstructure_mutate}}{(numeric(1))\cr
-Numeric value between 0 and 1 specifying the groupstructure mutation probability.}
+Numeric value between 0 and 1 specifying the group structure mutation probability.}
 
 \item{\code{p_groupstructure_crossover}}{(numeric(1))\cr
-Numeric value between 0 and 1 specifying the groupstructure crossover probability.}
+Numeric value between 0 and 1 specifying the group structure crossover probability.}
 }
 \if{html}{\out{</div>}}
 }
@@ -63,24 +63,24 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \describe{
 \item{\code{p_overall_mutate}}{(numeric(1))\cr
 Numeric value between 0 and 1 specifying the overall mutation probability.
-Default is 0.3.}
+The default value is 0.3.}
 
 \item{\code{p_overall_crossover}}{(numeric(1))\cr
 Numeric value between 0 and 1 specifying the overall crossover probability.
-This overall crossover probability is also used for the groupstructure crossover probability.
-Default is 0.7}
+This overall crossover probability is also used for the group structure crossover probability.
+The default value is 0.7.}
 
 \item{\code{p_param_mutate}}{(numeric(1))\cr
 Numeric value between 0 and 1 specifying the hyperparameter mutation probability.
-Default is 0.2.}
+The default value is 0.2.}
 
 \item{\code{p_param_crossover}}{(numeric(1))\cr
 Numeric value between 0 and 1 specifying the hyperparameter crossover probability.
-Default is 0.5.}
+The default value is 0.5.}
 
 \item{\code{p_groupstructure_mutate}}{(numeric(1))\cr
-Numeric value between 0 and 1 specifying the groupstructure mutation probability.
-Default is 0.2.}
+Numeric value between 0 and 1 specifying the group structure mutation probability.
+The default value is 0.2.}
 }
 \if{html}{\out{</div>}}
 }
@@ -97,7 +97,7 @@ Currently has no effect because probabilities are treated as non-adaptive.
 }
 
 \subsection{Returns}{
-Invisible \code{NULL}
+Invisible (\code{NULL})
 }
 }
 \if{html}{\out{<hr>}}

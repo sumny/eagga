@@ -82,7 +82,7 @@ calculate_proxy_measures = function(learner, task, orig_pvs, xdt, search_space, 
   features = model$feature_names  # pre-selected based on selector
   stopifnot(all(features == sort(features)))  # if internal xgboost feature representation does not match the alphabetically ordered one something is really messed up
   n_selected_total = length(task$feature_names)  # all
-  tmp = tryCatch(xgb_model_dt_tree(features, model = model), error = function(ec) {
+  tmp = tryCatch(get_table_of_trees(model = model, features = features), error = function(ec) {
     NULL
   })
   used = if (is.null(tmp)) {
@@ -94,7 +94,7 @@ calculate_proxy_measures = function(learner, task, orig_pvs, xdt, search_space, 
   n_selected = n_selected / n_selected_total  # normalize
 
  n_interactions_total = (n_selected_total * (n_selected_total - 1L)) / 2L
-  pairs = tryCatch(interactions(model, option = "pairs"), error = function(ec) {
+  pairs = tryCatch(get_interactions(model, option = "pairs"), error = function(ec) {
     NULL
   })
   if (is.null(pairs)) {

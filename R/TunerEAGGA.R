@@ -1,33 +1,25 @@
-#' @title Multi-objective Hyperparameter Optimization, Feature Selection and Interaction and Monotonicity Constraints
+#' @title Multi-objective Hyperparameter Optimization, Feature Selection, Interaction, and Monotonicity Constraints
 #'
 #' @name mlr_tuner_eagga
 #'
 #' @description
-#' Performs joint multi-objective optimization of hyperparameters, feature selection and interaction and monotonicity
-#' constraints of a suitable [mlr3::Learner].
+#' Performs joint multi-objective optimization of hyperparameters, feature selection, interaction constraints, and monotonicity constraints for a suitable `mlr3::Learner`.
 #'
-#' This requires an appropriate [mlr3::Learner], that allows for selecting features, and setting interaction and
-#' monotonicity constraints.
+#' This tuner requires an appropriate `mlr3::Learner` that supports feature selection, interaction constraints, and monotonicity constraints.
 #'
-#' Currently only XGBoost learners ([mlr3learners::LearnerRegrXgboost] or [mlr3learners::LearnerClassifXgboost] are
-#' supported.
+#' Currently, only XGBoost learners (`mlr3learners::LearnerRegrXgboost` or `mlr3learners::LearnerClassifXgboost`) are supported.
 #'
 #' @templateVar id eagga
 #' @template section_dictionary_tuners
 #'
 #' @section Parameters:
-#' FIXME: document
 #' \describe{
-#' \item{`select_id`}{`character(1)`\cr
-#' ID of param in Learner that selects features.}
-#' \item{`interaction_id`}{`character(1)`\cr
-#' ID of param in Learner that sets interaction constraints.}
-#' \item{`monotone_id`}{`character(1)`\cr
-#' ID of param in Learner that sets monotonicity constraints.}
-#' \item{`mu`}{`integer(1)`\cr
-#' Population size.}
-#' \item{`lambda`}{`integer(1)`\cr
-#' Offspring size of each generation.}}
+#'   \item{`select_id`}{(character) ID of the parameter in the Learner that controls feature selection.}
+#'   \item{`interaction_id`}{(character) ID of the parameter in the Learner that sets interaction constraints.}
+#'   \item{`monotone_id`}{(character) ID of the parameter in the Learner that sets monotonicity constraints.}
+#'   \item{`mu`}{(integer) Population size.}
+#'   \item{`lambda`}{(integer) Offspring size of each generation.}
+#' }
 #'
 #' @template section_progress_bars
 #' @template section_logging
@@ -57,7 +49,7 @@ TunerEAGGA = R6Class("TunerEAGGA",
         properties = "multi-crit",
         packages = "eagga",
         label = "Joint HPO and Optimization of Feature Selection, Interaction Constraints and Monotonicity Constraints",
-        man = "eagga::mlr_tuners_eagga"
+        man = "eagga::mlr_tuner_eagga"
       )
     }
   ),
@@ -95,6 +87,8 @@ TunerEAGGA = R6Class("TunerEAGGA",
 
       n_selected_prob = 1 / get_n_selected_rpart(task)
       n_selected = replicate(mu, sample_from_truncated_geom(n_selected_prob, lower = 1L, upper = length(task$feature_names)))  # number of selected features sampled from truncated geometric distribution
+      # FIXME: make this like a FeatureDetector for consistency
+      # feature detection
       filter = FilterInformationGain$new()  # NOTE: can use any other Filter or use a custom FilterEnsemble
       scores = as.data.table(filter$calculate(task))  # filter scores are used to weight probabilities of inclusion in GroupStructure
       scores[, score := score / sum(score)]
@@ -102,8 +96,8 @@ TunerEAGGA = R6Class("TunerEAGGA",
       interaction_detector = InteractionDetector$new(task)  # interaction detection
       interaction_detector$compute_best_rss()
       monotonicity_detector = MonotonicityDetector$new(task)  # monotonicity detection
-      monotonicity_detector$compute()
-      monotonicity_detector$compute_unconstrained_weights()
+      monotonicity_detector$compute_rho_table()
+      monotonicity_detector$compute_unconstrained_weight_table()
       unconstrained_weight_table = monotonicity_detector$unconstrained_weight_table
       switch_sign_affected = task$feature_names[map_lgl(task$feature_names, function(feature_name) monotonicity_detector$get_sign(feature_name) == -1L)]
       # FIXME: make this more flexible

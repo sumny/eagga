@@ -3,16 +3,13 @@
 \name{mlr_tuner_eagga}
 \alias{mlr_tuner_eagga}
 \alias{TunerEAGGA}
-\title{Multi-objective Hyperparameter Optimization, Feature Selection and Interaction and Monotonicity Constraints}
+\title{Multi-objective Hyperparameter Optimization, Feature Selection, Interaction, and Monotonicity Constraints}
 \description{
-Performs joint multi-objective optimization of hyperparameters, feature selection and interaction and monotonicity
-constraints of a suitable \link[mlr3:Learner]{mlr3::Learner}.
+Performs joint multi-objective optimization of hyperparameters, feature selection, interaction constraints, and monotonicity constraints for a suitable \code{mlr3::Learner}.
 
-This requires an appropriate \link[mlr3:Learner]{mlr3::Learner}, that allows for selecting features, and setting interaction and
-monotonicity constraints.
+This tuner requires an appropriate \code{mlr3::Learner} that supports feature selection, interaction constraints, and monotonicity constraints.
 
-Currently only XGBoost learners (\link[mlr3learners:mlr_learners_regr.xgboost]{mlr3learners::LearnerRegrXgboost} or \link[mlr3learners:mlr_learners_classif.xgboost]{mlr3learners::LearnerClassifXgboost} are
-supported.
+Currently, only XGBoost learners (\code{mlr3learners::LearnerRegrXgboost} or \code{mlr3learners::LearnerClassifXgboost}) are supported.
 }
 \section{Dictionary}{
 
@@ -27,18 +24,13 @@ tnr("eagga")
 
 \section{Parameters}{
 
-FIXME: document
 \describe{
-\item{\code{select_id}}{\code{character(1)}\cr
-ID of param in Learner that selects features.}
-\item{\code{interaction_id}}{\code{character(1)}\cr
-ID of param in Learner that sets interaction constraints.}
-\item{\code{monotone_id}}{\code{character(1)}\cr
-ID of param in Learner that sets monotonicity constraints.}
-\item{\code{mu}}{\code{integer(1)}\cr
-Population size.}
-\item{\code{lambda}}{\code{integer(1)}\cr
-Offspring size of each generation.}}
+\item{\code{select_id}}{(character) ID of the parameter in the Learner that controls feature selection.}
+\item{\code{interaction_id}}{(character) ID of the parameter in the Learner that sets interaction constraints.}
+\item{\code{monotone_id}}{(character) ID of the parameter in the Learner that sets monotonicity constraints.}
+\item{\code{mu}}{(integer) Population size.}
+\item{\code{lambda}}{(integer) Offspring size of each generation.}
+}
 }
 
 \section{Progress Bars}{
