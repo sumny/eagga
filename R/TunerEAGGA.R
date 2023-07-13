@@ -309,8 +309,6 @@ TunerEAGGA = R6Class("TunerEAGGA",
           inst$archive$data[considered_ids[alive_ids], status := "alive"]  # alive_ids was determined on the ys that did not carry the considered_ids info
         }
       }
-
-      inst
     },
     .probs = NULL,
     .n_selected_prob = NULL,
