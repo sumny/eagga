@@ -25,11 +25,14 @@ tnr("eagga")
 \section{Parameters}{
 
 \describe{
-\item{\code{select_id}}{(character) ID of the parameter in the Learner that controls feature selection.}
-\item{\code{interaction_id}}{(character) ID of the parameter in the Learner that sets interaction constraints.}
-\item{\code{monotone_id}}{(character) ID of the parameter in the Learner that sets monotonicity constraints.}
+\item{\code{learner_id}}{(character) ID of the learner in the graph learner.}
+\item{\code{select_id}}{(character) ID of the parameter in the learner that controls feature selection.}
+\item{\code{interaction_id}}{(character) ID of the parameter in the learner that sets interaction constraints.}
+\item{\code{monotone_id}}{(character) ID of the parameter in the learner that sets monotonicity constraints.}
 \item{\code{mu}}{(integer) Population size.}
 \item{\code{lambda}}{(integer) Offspring size of each generation.}
+\item{\code{seed_calculate_proxy_measures}}{(integer) Random seed to make the training of the models on the full
+\link[mlr3:Task]{mlr3::Task} to get the interpretability measures reproducible.}
 }
 }
 

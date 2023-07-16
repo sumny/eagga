@@ -14,11 +14,14 @@
 #'
 #' @section Parameters:
 #' \describe{
-#'   \item{`select_id`}{(character) ID of the parameter in the Learner that controls feature selection.}
-#'   \item{`interaction_id`}{(character) ID of the parameter in the Learner that sets interaction constraints.}
-#'   \item{`monotone_id`}{(character) ID of the parameter in the Learner that sets monotonicity constraints.}
+#'   \item{`learner_id`}{(character) ID of the learner in the graph learner.}
+#'   \item{`select_id`}{(character) ID of the parameter in the learner that controls feature selection.}
+#'   \item{`interaction_id`}{(character) ID of the parameter in the learner that sets interaction constraints.}
+#'   \item{`monotone_id`}{(character) ID of the parameter in the learner that sets monotonicity constraints.}
 #'   \item{`mu`}{(integer) Population size.}
 #'   \item{`lambda`}{(integer) Offspring size of each generation.}
+#'   \item{`seed_calculate_proxy_measures`}{(integer) Random seed to make the training of the models on the full
+#'   [mlr3::Task] to get the interpretability measures reproducible.}
 #' }
 #'
 #' @template section_progress_bars

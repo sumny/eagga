@@ -8,17 +8,19 @@ Detects important pairwise interactions using a simple interaction detector insp
 methodology proposed in Lou et al. (2013).
 
 In contrast to the original FAST algorithm, this detector is a crude implementation.
-It discretizes all features based on relatively small grid sizes, and the same unique grid values are used as
-potential cut points to find the best pair of cut points for each feature pair that results in the largest decrease
-in the residual sum of squares.
+It discretizes all features based on a relatively small grid size, and the same unique grid values are used as
+potential cut points for a feature to find the best pair of cut points for each feature pair that results in the
+largest decrease in the residual sum of squares.
 
-Additionally, please note that targets are simply converted to numeric values in the case of a \link[mlr3:TaskClassif]{mlr3::TaskClassif}, instead of working on
-logits or model outputs of a previously computed proxy model.
+Additionally, please note that targets are simply converted to numeric values in the case of a \link[mlr3:TaskClassif]{mlr3::TaskClassif},
+instead of working on logits or model outputs of a previously computed proxy model.
 
-Overall, it is important to remember that this detector is solely used to initialize the group structures of the initial population
-within \link{TunerEAGGA}. Therefore, some impreciseness is acceptable.
+Moreover, remember that this detector is solely used to initialize the group structures of the initial population
+within \link{TunerEAGGA}.
+Therefore, some impreciseness is acceptable.
 
-This interaction detector only works with integer or numeric features. Logical features must be converted to integers.
+This interaction detector only works with integer or numeric features.
+Logical features must be converted to integers.
 }
 \references{
 \itemize{
