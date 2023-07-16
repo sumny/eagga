@@ -55,8 +55,7 @@ Use \code{lgr::get_logger("bbotk")} to access and control the logger.
 \itemize{
 \item Schneider, Lennart, Bischl, Bernd, Thomas, Janek (2023).
 \dQuote{Multi-Objective Optimization of Performance and Interpretability of Tabular Supervised Machine Learning Models.}
-In \emph{Proceedings of the Genetic and Evolutionary Computation Conference},  series GECCO '23, 538–547.
-\doi{10.1145/3583131.3590380}, \url{https://doi.org/10.1145/3583131.3590380}.
+In \emph{Proceedings of the Genetic and Evolutionary Computation Conference},  series GECCO '23, 538--547.
 }
 }
 \concept{Tuner}

@@ -17,10 +17,8 @@ bibentries = c(
     title     = "Multi-Objective Optimization of Performance and Interpretability of Tabular Supervised Machine Learning Models",
     author    = "Schneider, Lennart and Bischl, Bernd and Thomas, Janek",
     year      = "2023",
-    url       = "https://doi.org/10.1145/3583131.3590380",
-    doi       = "10.1145/3583131.3590380",
     booktitle = "Proceedings of the Genetic and Evolutionary Computation Conference",
-    pages     = "538–547",
+    pages     = "538--547",
     series    = "GECCO '23"
   )
 )
