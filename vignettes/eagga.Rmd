@@ -511,3 +511,5 @@ model$param_set$values$colapply.applicator
 This section is work in progress and will explain technical details of the `r ref("eagga::TunerEAGGA", "TunerEAGGA")`, `r ref("eagga::Probs", "Probs")`, `r ref("eagga::InteractionDetector", "InteractionDetector")`, `r ref("eagga::MonotonicityDetector", "MonotonicityDetector")` and `r ref("eagga::GroupStructure", "GroupStructure")` classes.
 Note that the feature detector is currently implemented within `r ref("eagga::TunerEAGGA", "TunerEAGGA")` directly and not exposed as a standalone class but this might change in the near future.
 The current feature detector is simply based on a `r ref("mlr3filters::FilterInformationGain", "FilterInformationGain")`.
+
+# References
