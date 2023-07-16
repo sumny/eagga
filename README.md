@@ -12,6 +12,7 @@ in the paper: Multi-Objective Optimization of Performance and
 Interpretability of Tabular Supervised Machine Learning Models
 
 A good starting point is the following vignette:
+<https://sumny.github.io/eagga/articles/eagga.html>
 
 If you use `eagga`, please cite:
 
