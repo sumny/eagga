@@ -1,11 +1,21 @@
 Package: eagga
-Title: EA GGA
+Title: Multi-Objective Optimization of Performance and Interpretability by Jointly Optimizing Hyperparameters of a Learner and Group Structures of Features
 Version: 0.0.0.9999
 Authors@R: c(
     person("Lennart", "Schneider", , "lennart.sch@web.de", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0003-4152-5308"))
   )
-Description: EA GGA.
+Description: The eagga package is the official implementation of the EAGGA algorithm introduced in the paper
+  "Multi-Objective Optimization of Performance and Interpretability of Tabular Supervised Machine Learning Models".
+  By treating hyperparameter optimization of a machine learning algorithm as a multi-objective optimization problem, EAGGA
+  allows for generating diverse models that trade off high performance and ease of interpretability in a single
+  optimization run.
+  Efficient optimization is achieved via augmentation of the search space of the learning algorithm by incorporating
+  feature selection, interaction and monotonicity constraints into the hyperparameter search space which are represented
+  in the form of group structures of features.
+  eagga is well integrated within the mlr3 ecosystem allowing for plug and play changes of performance measures and
+  resampling methods.
+  Moreover, the iml package can be used for post hoc interpretable machine learning analyses.
 License: GPL (>= 3)
 Depends:
   R (>= 3.5.0),

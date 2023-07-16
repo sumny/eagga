@@ -3,7 +3,7 @@
 \name{mlr_tuner_eagga}
 \alias{mlr_tuner_eagga}
 \alias{TunerEAGGA}
-\title{Multi-objective Hyperparameter Optimization, Feature Selection, Interaction, and Monotonicity Constraints}
+\title{Multi-Objective Optimization of Performance and Interpretability by Jointly Optimizing Hyperparameters of a Learner and Group Structures of Features}
 \description{
 Performs joint multi-objective optimization of hyperparameters, feature selection, interaction constraints, and monotonicity constraints for a suitable \code{mlr3::Learner}.
 
@@ -51,6 +51,14 @@ All \link{Tuner}s use a logger (as implemented in \CRANpkg{lgr}) from package
 Use \code{lgr::get_logger("bbotk")} to access and control the logger.
 }
 
+\references{
+\itemize{
+\item Schneider, Lennart, Bischl, Bernd, Thomas, Janek (2023).
+\dQuote{Multi-Objective Optimization of Performance and Interpretability of Tabular Supervised Machine Learning Models.}
+In \emph{Proceedings of the Genetic and Evolutionary Computation Conference},  series GECCO '23, 538–547.
+\doi{10.1145/3583131.3590380}, \url{https://doi.org/10.1145/3583131.3590380}.
+}
+}
 \concept{Tuner}
 \section{Super class}{
 \code{\link[mlr3tuning:Tuner]{mlr3tuning::Tuner}} -> \code{TunerEAGGA}
