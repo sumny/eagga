@@ -11,7 +11,7 @@ test_that("TunerEAGGA on classif works", {
 
   measures = msrs(c("classif.ce", "selected_features_proxy", "selected_interactions_proxy", "selected_non_monotone_proxy"))
 
-  terminator = trm("evals", n_evals = 20L)
+  terminator = trm("evals", n_evals = 30L)
 
   search_space = ps(
     classif.xgboost.nrounds = p_dbl(lower = log(1L), upper = log(500L), tags = c("int", "log"),
@@ -60,7 +60,7 @@ test_that("TunerEAGGA on classif works", {
   tuner$optimize(instance)
   # FIXME: Error: Tables have different number of rows (x: 20, y: 40)
   expect_true(instance$is_terminated)
-  expect_true(nrow(instance$archive$data) == 20L)
+  expect_equal(nrow(instance$archive$data), 30L)
   expect_true(all(c(tuner$param_set$values$select_id, tuner$param_set$values$interaction_id, tuner$param_set$values$monotone_id,
                     "groupstructure", "groupstructure_orig", "generation", "status") %in% colnames(instance$archive$data)))
   expect_list(instance$archive$data[[tuner$param_set$values$select_id]], types = "Selector")
@@ -74,9 +74,9 @@ test_that("TunerEAGGA on classif works", {
   expect_list(instance$archive$data$groupstructure, types = "GroupStructure")
   expect_list(instance$archive$data$groupstructure_orig, types = "GroupStructure")
   expect_integerish(instance$archive$data$generation)
-  expect_true(max(instance$archive$data$generation) == 5L)
+  expect_equal(max(instance$archive$data$generation), 10L)
   expect_true(all(instance$archive$data$status %in% c("alive", "dead")))
-  expect_true(sum(instance$archive$data$status == "alive") == 10L)
+  expect_equal(sum(instance$archive$data$status == "alive"), 10L)
 
   # optimization is useful
   expect_true(any(instance$archive$best()[["classif.ce"]] < 0.5))
