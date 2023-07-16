@@ -8,3 +8,5 @@ README_files
 ^docs$
 ^pkgdown$
 ^\.github$
+^doc$
+^Meta$

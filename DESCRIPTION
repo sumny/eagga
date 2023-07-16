@@ -1,6 +1,6 @@
 Package: eagga
 Title: EA GGA
-Version: 0.0.0.9000
+Version: 0.0.0.9999
 Authors@R: c(
     person("Lennart", "Schneider", , "lennart.sch@web.de", role = c("cre", "aut"),
            comment = c(ORCID = "0000-0003-4152-5308"))
@@ -28,13 +28,17 @@ Imports:
   relations (>= 0.6-12),
   xgboost (>= 1.6.0.1)
 Suggests:
-  FSelectorRcpp,
-  iml (>= 0.11.1),
-  rpart,
-  testthat (>= 3.0.0)
+    FSelectorRcpp,
+    iml (>= 0.11.1),
+    knitr,
+    rmarkdown,
+    rpart,
+    stringi,
+    testthat (>= 3.0.0)
 Encoding: UTF-8
 Config/testthat/edition: 3
 Config/testthat/parallel: false
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
 URL: https://sumny.github.io/eagga/
+VignetteBuilder: knitr
