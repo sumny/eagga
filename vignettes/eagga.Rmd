@@ -503,7 +503,7 @@ This is "hidden" in the ALE plot, i..e, it looks as if `"x3"` indeed has a monot
 
 ```{r}
 model$param_set$values$colapply.affect_columns
-model$para_set$values$colapply.applicator
+model$param_set$values$colapply.applicator
 ```
 
 # Technical Details
