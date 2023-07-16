@@ -1,8 +1,9 @@
 pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
-articles: {}
-last_built: 2023-07-12T20:36Z
+articles:
+  eagga: eagga.html
+last_built: 2023-07-16T10:58Z
 urls:
   reference: https://sumny.github.io/eagga/reference
   article: https://sumny.github.io/eagga/articles
