@@ -393,7 +393,7 @@ front
 ```
 
 We observe that we found diverse models trading off performance and interpretability to varying degree.
-We can further inspect the group structure of each model (for more details on the `r ref("eagga::GroupStructure", "GroupStructure")` class, see the technical details section below.
+We can further inspect the group structure of each model (for more details on the `r ref("eagga::GroupStructure", "GroupStructure")` class, see the technical details section below):
 
 ```{r}
 instance$archive$best()[8, ]$groupstructure[[1]]$get_groups()
