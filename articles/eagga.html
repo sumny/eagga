@@ -72,11 +72,11 @@
 <h2 id="intro">Intro<a class="anchor" aria-label="anchor" href="#intro"></a>
 </h2>
 <p>The <code>EAGGA</code> algorithm is a model-agnostic framework
-designed to enhance the predictive performance and interpretability of
-supervised machine learning models for tabular data. This algorithm
-incorporates three key measures of interpretability: feature sparsity,
-interaction sparsity of features, and sparsity of non-monotone feature
-effects.</p>
+designed to jointly optimize the predictive performance and
+interpretability of supervised machine learning models for tabular data.
+This algorithm incorporates three key measures of interpretability:
+feature sparsity, interaction sparsity of features, and sparsity of
+non-monotone feature effects.</p>
 <p>By formulating the hyperparameter optimization process of a machine
 learning algorithm as a multi-objective optimization problem,
 <code>EAGGA</code> enables the generation of diverse models that strike
@@ -84,21 +84,20 @@ a balance between high performance and interpretability within a single
 optimization run. Efficient optimization is achieved by expanding the
 search space of the learning algorithm through the inclusion of feature
 selection, interaction, and monotonicity constraints in the
-hyperparameter search.</p>
+hyperparameter search which are represented in the form of a
+groupstructure.</p>
 <p>The core concept behind <code>EAGGA</code> lies in identifying the
 Pareto optimal set of groups of selected features that can interact
 within a model, along with determining their optimal monotonicity
 constraints and the optimal hyperparameters of the learning algorithm
-itself. To facilitate this process, <code>EAGGA</code> introduces a
-novel evolutionary algorithm specifically designed to operate
-effectively within the augmented search space.</p>
+itself.</p>
 <p>This vignette is a gentle introduction to the core functionality of
 the <code>eagga</code> package. For more details on the algorithm
 itself, please see <span class="citation">Schneider, Bischl, and Thomas
-(2023)</span>. Finally, the <code>eagga</code> package builds upon the
-<code>mlr3</code> ecosystem. If you are not familiar with it, we highly
-recommend to make your self familiar with it, by for example reading the
-following book: <a href="https://mlr3book.mlr-org.com/" class="external-link uri">https://mlr3book.mlr-org.com/</a></p>
+(2023)</span>. Note that the <code>eagga</code> package heavily builds
+upon the <code>mlr3</code> ecosystem. If you are not familiar with it,
+we highly recommend to make yourself familiar with it, by for example
+reading the following book: <a href="https://mlr3book.mlr-org.com/" class="external-link uri">https://mlr3book.mlr-org.com/</a></p>
 <p>As a final comment: In the following, we will write
 <code>EAGGA</code> to refer to the algorithm, whereas <code>eagga</code>
 will refer to the software implementation, i.e., the R package this
@@ -132,9 +131,9 @@ by using a suitable <a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.
 and wrapping the pipeop + learner in a <a href="https://mlr3pipelines.mlr-org.com/reference/GraphLearner.html" class="external-link"><code>GraphLearner</code></a>,
 the current <code>EAGGA</code> implementation does not support such an
 encoding. This behavior might change in the near future. If your use
-case includes categorical features, please open an issue so that we are
-aware of it and can work on implementing proper support with higher
-priority.</p>
+case includes categorical features or multi-class classification tasks,
+please open an issue so that we are aware of it and can work on
+implementing proper support with higher priority.</p>
 </div>
 <div class="section level3">
 <h3 id="building-blocks-of-eagga">Building Blocks of EAGGA<a class="anchor" aria-label="anchor" href="#building-blocks-of-eagga"></a>
@@ -183,10 +182,10 @@ and will look like the following (assuming classification):</p>
 hyperparameter to <code>"gbtree"</code>. Moreover, the function to apply
 via <a href="https://mlr3pipelines.mlr-org.com/reference/PipeOpColApply.html" class="external-link"><code>PipeOpColApply</code></a>
 must be set to <code>function(x) - x</code> (which is responsible for
-changing the sign of features after having detected it via using a
-monotonicity detector as described above).</p>
-<p>Users can customize this pipeline but must adhere to the basic
-structure
+changing the sign of features after having detected the necessity of
+such a swap via using a monotonicity detector as described above).</p>
+<p>Users can customize this pipeline building the graph learner but must
+adhere to the basic structure
 (<code>colapply --&gt; select --&gt; sortfeatures --&gt; [custom user block] --&gt; learner</code>).</p>
 <p>The search space defines the hyperparameter search space that should
 be optimized over. An example looks like the following:</p>
@@ -222,14 +221,14 @@ be optimized over. An example looks like the following:</p>
 Note that in general it is better to set the upper bound of
 <code>nrounds</code> higher (e.g., around <code>log(5000)</code> and the
 default to <code>log(500)</code> but we use less boosting rounds to
-speed up the following example.</p>
+speed up the following examples.</p>
 <p>Additionally, we must specify that we also tune over the feature
 <code>selector</code> and <code>interaction_constraints</code> and
 <code>monotone_constraints</code> (we specify these as <a href="https://paradox.mlr-org.com/reference/ParamUty.html" class="external-link"><code>ParamUty</code></a>
-hyperparameters because they are not tunable in a standard way. However,
-we need to include them into the search space as <code>eagga</code> must
-be able to pass such constraints based on so-called group structures to
-the learner.</p>
+hyperparameters because they are not directly tunable in a standard way.
+However, we need to include them into the search space as
+<code>eagga</code> must be able to pass such constraints based on
+so-called group structures to the learner.</p>
 </div>
 <div class="section level4">
 <h4 id="task">Task<a class="anchor" aria-label="anchor" href="#task"></a>
@@ -280,18 +279,18 @@ classification error:</p>
 <code class="sourceCode R"><span><span class="va">performance_measure</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"classif.ce"</span><span class="op">)</span></span></code></pre></div>
 <p>As <code>EAGGA</code> jointly optimizes for performance and
 interpretability, we also need to pass the interpretability measures
-(<code>NF</code>, <code>NI</code> and <code>NNM</code> in the
-paper).</p>
+(<code>NF</code>, <code>NI</code> and <code>NNM</code> in the paper):
+the relative number of features used by the model, the relative number
+of (pariwise) interactions of features in the model and the relative
+number of non-monotone feature effects.</p>
 <p>These measures are implemented via so-called proxy measures (proxy
-because they actually do not work like standard measures and operate on
-a <a href="https://mlr3.mlr-org.com/reference/Prediction.html" class="external-link"><code>Prediction</code></a>
+because they actually do not work like standard mlr3 measures and do not
+operate on a <a href="https://mlr3.mlr-org.com/reference/Prediction.html" class="external-link"><code>Prediction</code></a>
 object but rather are always hard coded to a value of zero but updated
-and computed within the optimization process.</p>
-<p>For details, see
-/home/runner/work/_temp/Library/eagga/help/mlr_measures_selected_features_proxy,
-/home/runner/work/_temp/Library/eagga/help/mlr_measures_selected_interactions_proxy
-and
-/home/runner/work/_temp/Library/eagga/help/mlr_measures_selected_non_monotone_proxy.</p>
+and computed within the actual optimization process).</p>
+<p>For details, see <a href="https://www.rdocumentation.org/packages/eagga/topics/MeasureSelectedFeaturesProxy" class="external-link"><code>MeasureSelectedFeaturesProxy</code></a>,
+<a href="https://www.rdocumentation.org/packages/eagga/topics/MeasureSelectedInteractionsProxy" class="external-link"><code>MeasureSelectedInteractionsProxy</code></a>
+and <a href="https://www.rdocumentation.org/packages/eagga/topics/MeasureSelectedNonMonotoneProxy" class="external-link"><code>MeasureSelectedNonMonotoneProxy</code></a>.</p>
 <p>Again, note that these measures do not do anything meaningful except
 for when being used in combination with <code>eagga</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -303,8 +302,8 @@ for when being used in combination with <code>eagga</code>.</p>
 <h2 id="tuning-with-tunereagga">Tuning with TunerEAGGA<a class="anchor" aria-label="anchor" href="#tuning-with-tunereagga"></a>
 </h2>
 <p>As we have introduced all building blocks, we can now use
-<code>EAGGA</code> to jointly tune for performance and interpretability.
-This works by constructing a <a href="https://mlr3tuning.mlr-org.com/reference/TuningInstanceMultiCrit.html" class="external-link"><code>TuningInstanceMultiCrit</code></a>
+<code>EAGGA</code> to jointly optimize for performance and
+interpretability. This works by constructing a <a href="https://mlr3tuning.mlr-org.com/reference/TuningInstanceMultiCrit.html" class="external-link"><code>TuningInstanceMultiCrit</code></a>
 and a <a href="https://www.rdocumentation.org/packages/eagga/topics/TunerEAGGA" class="external-link"><code>TunerEAGGA</code></a>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instance</span> <span class="op">=</span> <span class="va"><a href="https://mlr3tuning.mlr-org.com/reference/TuningInstanceMultiCrit.html" class="external-link">TuningInstanceMultiCrit</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -316,8 +315,8 @@ and a <a href="https://www.rdocumentation.org/packages/eagga/topics/TunerEAGGA" 
 <span>  search_space <span class="op">=</span> <span class="va">search_space</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>By setting <code>terminator = trm("evals", n_evals = 30)</code> we
-specified that termination of the tuning process should occur after
-having evaluated 30 configurations. This is sufficient for illustrative
+specify that termination of the tuning process should occur after having
+evaluated 30 configurations. This is sufficient for illustrative
 purposes here but should be set much higher in practice. Termination can
 also be specified via other terminators, see, e.g.,
 <code><a href="https://bbotk.mlr-org.com/reference/mlr_terminators.html" class="external-link">?mlr_terminators</a></code></p>
@@ -333,9 +332,10 @@ via <code>lambda</code>. Here we set them to <code>mu = 10</code> and
 be set much higher; a good starting point can be <code>mu = 100</code>
 and <code>lambda = 10</code>). Furthermore we can specify
 <code>seed_calculate_proxy_measures</code> to seed the model fitting
-process of configuration tried during optimization on the task to be
-able to fully reproduce models found during optimization. For more
-details, see the section on reconstructing models below.</p>
+process of configurations tried during optimization on the task to be
+able to fully reproduce models resulting in certain <code>NF</code>,
+<code>NI</code>, and <code>NNM</code> values found during optimization.
+For more details, see the section on reconstructing models below.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tuner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3tuning.mlr-org.com/reference/tnr.html" class="external-link">tnr</a></span><span class="op">(</span><span class="st">"eagga"</span>,</span>
 <span>  learner_id <span class="op">=</span> <span class="st">"classif.xgboost"</span>,</span>
@@ -515,9 +515,8 @@ details, see the section on reconstructing models below.</p>
 <span><span class="co">#&gt; 4:                         0.0</span></span>
 <span><span class="co">#&gt; 5:                         0.0</span></span></code></pre></div>
 <p>We observe that we found diverse models trading off performance and
-interpretability to varying degree.</p>
-<p>We can further inspect the group structure of each model (for more
-details on the <a href="https://www.rdocumentation.org/packages/eagga/topics/GroupStructure" class="external-link"><code>GroupStructure</code></a>
+interpretability to varying degree. We can further inspect the group
+structure of each model (for more details on the <a href="https://www.rdocumentation.org/packages/eagga/topics/GroupStructure" class="external-link"><code>GroupStructure</code></a>
 class, see the technical details section below.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instance</span><span class="op">$</span><span class="va">archive</span><span class="op">$</span><span class="fu">best</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">8</span>, <span class="op">]</span><span class="op">$</span><span class="va">groupstructure</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="fu">get_groups</span><span class="op">(</span><span class="op">)</span></span>
@@ -557,14 +556,15 @@ or monotone increasing feature effects):</p>
 <code class="sourceCode R"><span><span class="va">instance</span><span class="op">$</span><span class="va">objective</span><span class="op">$</span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">colapply.affect_columns</span></span>
 <span><span class="co">#&gt; selector_name("x1")</span></span></code></pre></div>
 <p>Note: As this process of swapping the sign of features is performed
-during optimization, you cannot simply use the learner you pass to the
+during optimization, you cannot simply use the learner you passed to the
 instance afterwards to train your learner with a given hyperparameter
 configuration and group structure. Instead, you should use the learner
-passed to the instance (which is updated in place):
+within the objective of the instance which was updated in place:
 <code>instance$objective$learner</code>. To use a hyperparameter
 configuration and group structure together with this learner, you can
-then do the following. Assume we want to use the eight configuration of
-the Pareto set:</p>
+then do the following. Assume we want to use the eighth configuration of
+the Pareto set, then we can simply specify the hyperparameter values as
+follows:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hpc</span> <span class="op">=</span> <span class="va">instance</span><span class="op">$</span><span class="va">archive</span><span class="op">$</span><span class="fu">best</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">8</span>, <span class="st">"x_domain"</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -593,9 +593,9 @@ way.</p>
 <div class="section level2">
 <h2 id="deciding-on-a-model-and-reconstructing-it">Deciding on a Model and Reconstructing it<a class="anchor" aria-label="anchor" href="#deciding-on-a-model-and-reconstructing-it"></a>
 </h2>
-<p>Once we have decided on a model (i.e., non-dominated hyperparameter
-configuration and group structure) we prefer, we can “reconstruct” it.
-To do so, we use the <a href="https://www.rdocumentation.org/packages/eagga/topics/reconstruct_eagga_model" class="external-link"><code>reconstruct_eagga_model</code></a>
+<p>Once we have decided on a model (based on a non-dominated
+hyperparameter configuration and group structure) we prefer, we can
+“reconstruct” it. To do so, we use the <a href="https://www.rdocumentation.org/packages/eagga/topics/reconstruct_eagga_model" class="external-link"><code>reconstruct_eagga_model</code></a>
 function and pass the tuning instance, the tuner and the uhash of the
 model we want to “reconstruct” as logged in the archive:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -613,7 +613,7 @@ optimization via a resampling method can be biased estimates of the
 performance of the final model, as we have based our decision making
 process on these performance estimate (this is the in essence the same
 problem as in single objective hyperparameter optimization and why we
-should to nested resampling to get an unbiased estimate of the
+should use nested resampling to get an unbiased estimate of the
 performance of the final model). Ideally, you do have access to some
 unseen test data as illustrated above.</p>
 </div>
@@ -646,23 +646,23 @@ no effect on the target as it cannot be used by the model:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">effect_x3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eagga_files/figure-html/unnamed-chunk-24-1.png" width="700"></p>
 <p>We know that feature <code>"x3"</code> can be used by the model and
-is constrained to have a monotone increasing effect on the target.
-However, recall that our monotonicity detector during optimization
-detected that <code>"x3"</code> actually should have a monotone
-decreasing effect on the target and to achieve a monotone increasing
-effect we switched the sign of the feature. This is “hidden” in the ALE
-plot, i..e, it looks as if <code>"x3"</code> indeed has a monotone
-increasing feature effect on predicting the positive class label
-<code>"1"</code> - but the actual monotonicity direction is a decreasing
-one as we have swapped the sign of the feature (so be careful when
-interpreting the monotonicity of feature effects, if signs have been
-swapped by during optimization).</p>
+is constrained to have a monotone increasing effect on the target -
+which is also confirmed by the ALE plot. However, recall that our
+monotonicity detector during optimization detected that
+<code>"x3"</code> actually should have a monotone decreasing effect on
+the target and to achieve a monotone increasing effect we switched the
+sign of the feature. This is “hidden” in the ALE plot, i..e, it looks as
+if <code>"x3"</code> indeed has a monotone increasing feature effect on
+predicting the positive class label <code>"1"</code> - but the actual
+monotonicity direction is a decreasing one as we have swapped the sign
+of the feature (so be careful when interpreting the monotonicity of
+feature effects, if signs have been swapped during optimization).</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">colapply.affect_columns</span></span>
 <span><span class="co">#&gt; selector_name("x1")</span></span>
 <span><span class="va">model</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">colapply.applicator</span></span>
 <span><span class="co">#&gt; function(x) - x</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55bc3e6b0a70&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;bytecode: 0x55a69cbb9390&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="technical-details">Technical Details<a class="anchor" aria-label="anchor" href="#technical-details"></a>
