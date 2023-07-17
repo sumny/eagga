@@ -281,6 +281,9 @@ TunerEAGGA = R6Class("TunerEAGGA",
           inst$archive$data[j, ][[select_id]][[1L]] = groupstructure$create_selector()
           inst$archive$data[j, ][[interaction_id]][[1L]] = groupstructure$create_interaction_constraints()
           inst$archive$data[j, ][[monotone_id]][[1L]] = groupstructure$create_monotonicity_constraints()
+
+          lg$info("Updating proxy measures of batch %i:", inst$archive$n_batch)
+          lg$info(capture.output(print(inst$archive$data[inst$archive$n_batch, c(inst$archive$cols_x, inst$archive$cols_y), with = FALSE], class = FALSE, row.names = FALSE, print.keys = FALSE)))
         }
 
         # NSGA-II stuff for survival

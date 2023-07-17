@@ -18,7 +18,7 @@ If you use `eagga`, please cite:
 
 ``` tex
 @inproceedings{schneider_2023,
-  author    = {Schneider, Lennart and Bischl, Bernd and Thomas, Janek},
+  author    = {Lennart Schneider and Bernd Bischl and Janek Thomas},
   title     = {Multi-Objective Optimization of Performance and Interpretability of Tabular Supervised Machine Learning Models},
   year      = {2023},
   url       = {https://doi.org/10.1145/3583131.3590380},
