@@ -517,7 +517,7 @@ For more details, see the section on reconstructing models below.</p>
 <p>We observe that we found diverse models trading off performance and
 interpretability to varying degree. We can further inspect the group
 structure of each model (for more details on the <a href="https://www.rdocumentation.org/packages/eagga/topics/GroupStructure" class="external-link"><code>GroupStructure</code></a>
-class, see the technical details section below.</p>
+class, see the technical details section below):</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instance</span><span class="op">$</span><span class="va">archive</span><span class="op">$</span><span class="fu">best</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">8</span>, <span class="op">]</span><span class="op">$</span><span class="va">groupstructure</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="fu">get_groups</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
@@ -662,7 +662,7 @@ feature effects, if signs have been swapped during optimization).</p>
 <span><span class="co">#&gt; selector_name("x1")</span></span>
 <span><span class="va">model</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">colapply.applicator</span></span>
 <span><span class="co">#&gt; function(x) - x</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55a69cbb9390&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;bytecode: 0x55d47b6c9310&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="technical-details">Technical Details<a class="anchor" aria-label="anchor" href="#technical-details"></a>
