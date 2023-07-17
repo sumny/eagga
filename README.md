@@ -8,8 +8,9 @@
 <!-- badges: end -->
 
 This is the official implemention of the `EAGGA` algorithm as introduced
-in the paper: Multi-Objective Optimization of Performance and
-Interpretability of Tabular Supervised Machine Learning Models
+in the paper: [Multi-Objective Optimization of Performance and
+Interpretability of Tabular Supervised Machine Learning
+Models](https://doi.org/10.1145/3583131.3590380)
 
 A good starting point is the following vignette:
 <https://sumny.github.io/eagga/articles/eagga.html>
@@ -28,3 +29,7 @@ If you use `eagga`, please cite:
   series    = {GECCO '23}
 }
 ```
+
+You can find the original repository containing the code to replicate
+all results reported in the paper here:
+<https://github.com/slds-lmu/paper_2023_eagga>

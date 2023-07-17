@@ -9,7 +9,7 @@ output: github_document
 [![pkgdown](https://img.shields.io/badge/Website-Documentation-blue)](https://sumny.github.io/eagga/)
 <!-- badges: end -->
 
-This is the official implemention of the `EAGGA` algorithm as introduced in the paper: Multi-Objective Optimization of Performance and Interpretability of Tabular Supervised Machine Learning Models
+This is the official implemention of the `EAGGA` algorithm as introduced in the paper: [Multi-Objective Optimization of Performance and Interpretability of Tabular Supervised Machine Learning Models](https://doi.org/10.1145/3583131.3590380)
 
 A good starting point is the following vignette: https://sumny.github.io/eagga/articles/eagga.html
 
@@ -28,3 +28,4 @@ If you use `eagga`, please cite:
 }
 ```
 
+You can find the original repository containing the code to replicate all results reported in the paper here: https://github.com/slds-lmu/paper_2023_eagga
