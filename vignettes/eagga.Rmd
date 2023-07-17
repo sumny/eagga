@@ -463,7 +463,7 @@ task_test = generate_task(10000)
 model$predict(task_test)$score(msr("classif.ce"))
 ```
 
-In general, note that the performance estimates obtained during optimization via a resampling method can be biased estimates of the performance of the final model, as we have based our decision making process on these performance estimate (this is the in essence the same problem as in single objective hyperparameter optimization and why we should use nested resampling to get an unbiased estimate of the performance of the final model).
+In general, note that the performance estimates obtained during optimization via a resampling method can be biased estimates of the performance of the final model, as we have based our decision making process on these performance estimate (this is in essence the same problem as in single objective hyperparameter optimization and why we should use nested resampling to get an unbiased estimate of the performance of the final model).
 Ideally, you do have access to some unseen test data as illustrated above.
 
 # Inspecting Models with the iml Package
