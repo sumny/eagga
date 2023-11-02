@@ -271,9 +271,9 @@ search_space = ps(
 ```
 
 This search space specifies that we tuner over `nrounds`, `eta`, `gamma`, `lambda`, `alpha`, `subsample`, `max_depth`, `min_child_weight`, `colsample_bytree` and `colsample_by_level` which are standard hyperparameters of `XGBoost` (for an explanation and description, see e.g., `?xgboost` or https://xgboost.readthedocs.io/en/stable/parameter.html).
-Note that in general it is better to set the upper bound of `nrounds` higher (e.g., around `log(5000)` and the default to `log(500)` but we use less boosting rounds to speed up the following examples.
+Note that in general it is better to set the upper bound of `nrounds` higher (e.g., around `log(5000)` and the default to `log(500)`) but we use less boosting rounds to speed up the following examples.
 
-Additionally, we must specify that we also tune over the feature `selector` and `interaction_constraints` and `monotone_constraints` (we specify these as `r ref("paradox::ParamUty", "ParamUty")` hyperparameters because they are not directly tunable in a standard way.
+Additionally, we must specify that we also tune over the feature `selector` and `interaction_constraints` and `monotone_constraints` (we specify these as `r ref("paradox::ParamUty", "ParamUty")` hyperparameters because they are not directly tunable in a standard way).
 However, we need to include them into the search space as `eagga` must be able to pass such constraints based on so-called group structures to the learner.
 
 ### Task
