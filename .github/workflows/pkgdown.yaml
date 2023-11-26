@@ -42,6 +42,10 @@ jobs:
         run: |
           R -q -e 'options(Ncpus = 2); install.packages("renv", repos = "cloud.r-project.org"); renv::restore()'
 
+      - name: Install eagga package
+        run: |
+          R -q -e 'devtools::install(upgrade = "never")'
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
