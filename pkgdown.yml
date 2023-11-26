@@ -3,7 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   eagga: eagga.html
-last_built: 2023-11-02T13:55Z
+last_built: 2023-11-26T16:01Z
 urls:
   reference: https://sumny.github.io/eagga/reference
   article: https://sumny.github.io/eagga/articles
