@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^LICENSE\.md$
 README.*
 README_files
@@ -10,4 +12,3 @@ README_files
 ^\.github$
 ^doc$
 ^Meta$
-install_packags.R
