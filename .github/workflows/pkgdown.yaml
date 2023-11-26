@@ -1,5 +1,3 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main]
@@ -30,10 +28,19 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
+      - uses: actions/cache@v3
         with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
+          path: ~/.cache/R/renv
+          key: ubuntu-latest-r-${{ hashFiles('renv.lock') }}
+          restore-keys: ubuntu-latest-r-
+
+      - uses: mlr-org/actions/renv-system-dependencies@v1
+        with:
+          path: "renv.lock"
+
+      - name: Restore renv environment
+        run: |
+          R -q -e 'options(Ncpus = 2); install.packages("renv", repos = "cloud.r-project.org"); renv::restore()'
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
