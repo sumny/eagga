@@ -10,3 +10,4 @@ README_files
 ^\.github$
 ^doc$
 ^Meta$
+install_packags.R

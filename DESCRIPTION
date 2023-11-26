@@ -18,33 +18,33 @@ Description: The eagga package is the official implementation of the EAGGA algor
   Moreover, the iml package can be used for post hoc interpretable machine learning analyses.
 License: GPL (>= 3)
 Depends:
-  R (>= 3.5.0),
-  mlr3tuning
+  R (>= 4.2),
+  mlr3tuning (== 0.17.2)
 Imports:
-  bbotk (>= 0.5.4),
-  checkmate (>= 2.0.0),
-  data.table,
-  emoa (>= 0.5-0.1),
-  lgr (>= 0.3.4),
-  mlr3 (>= 0.13.0),
-  mlr3learners,
-  mlr3pipelines,
-  mlr3filters,
-  mlr3misc (>= 0.7.0),
-  paradox (>= 0.8.0),
-  progress,
-  R6 (>= 2.4.1),
+  bbotk (== 0.7.2),
+  checkmate (>= 2.1.0),
+  data.table (>= 1.14.6),
+  emoa (== 0.5-0.1),
+  lgr (>= 0.4.4),
+  mlr3 (== 0.14.1),
+  mlr3filters (== 0.7.0),
+  mlr3misc (>= 0.11.0),
+  mlr3learners (== 0.5.6),
+  mlr3pipelines (== 0.4.2),
+  paradox (>= 0.11.0),
+  progress (>= 1.2.2),
+  R6 (>= 2.5.1),
   R.utils,
-  relations (>= 0.6-12),
-  xgboost (>= 1.6.0.1)
+  relations (== 0.6-12),
+  xgboost (== 1.6.0.1)
 Suggests:
-    FSelectorRcpp,
+    FSelectorRcpp (== 0.3.8),
     iml (>= 0.11.1),
     knitr,
     rmarkdown,
-    rpart,
+    rpart (== 4.1.19),
     stringi,
-    testthat (>= 3.0.0)
+    testthat (>= 3.1.6)
 Encoding: UTF-8
 Config/testthat/edition: 3
 Config/testthat/parallel: false
