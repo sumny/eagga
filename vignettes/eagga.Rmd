@@ -18,8 +18,8 @@ knitr::opts_chunk$set(
 update_db = function() {
   if (is.null(db$base) || is.null(db$aliases)) {
     hdb = hsearch_db(package = unique(c(db$index, db$hosted)), types = "help")
-    db$base = setkeyv(as.data.table(hdb$Base), "ID")
-    db$aliases = setkeyv(as.data.table(hdb$Aliases), "Alias")
+    db$base = data.table::setkeyv(data.table::as.data.table(hdb$Base), "ID")
+    db$aliases = data.table::setkeyv(data.table::as.data.table(hdb$Aliases), "Alias")
   }
 }
 
@@ -67,8 +67,16 @@ ref = function(topic, text = topic, format = "markdown") {
   if (pkg %in% db$hosted) {
     url = sprintf("https://%s.mlr-org.com/reference/%s.html", pkg, name)
   } else {
-    url = sprintf("https://www.rdocumentation.org/packages/%s/topics/%s", pkg, name)
+    if (pkg == "eagga") {
+      url = sprintf("https://sumny.github.io/eagga/reference/%s.html", name)
+    } else {
+      url = sprintf("https://www.rdocumentation.org/packages/%s/topics/%s", pkg, name)
+    }
   }
+
+  #if (!RCurl::url.exists(url)) {
+  #  stop("URL %s does not exist", url)
+  #}
 
   switch(format,
     "markdown" = sprintf("[`%s`](%s)", text, url),
@@ -167,7 +175,7 @@ gh_pkg = function(pkg, format = "markdown") {
 
 db = new.env()
 db$index = c("base", "utils", "datasets", "data.table", "stats")
-db$hosted = c("paradox", "mlr3misc", "mlr3", "mlr3data", "mlr3db", "mlr3proba", "mlr3pipelines", "mlr3learners", "mlr3filters", "bbotk", "mlr3tuning", "mlr3viz", "mlr3fselect", "mlr3cluster", "mlr3spatiotempcv", "mlr3spatial", "mlr3extralearners", "mlr3tuningspaces", "mlr3hyperband", "mlr3mbo")
+db$hosted = c("paradox", "mlr3misc", "mlr3", "mlr3pipelines", "mlr3learners", "mlr3filters", "bbotk", "mlr3tuning")
 
 lgr = NULL
 ```
@@ -194,7 +202,7 @@ As a final comment: In the following, we will write `EAGGA` to refer to the algo
 
 ## Supported Learners
 
-Although formulated model-agnostic, the current `EAGGA` implementation currently only supports `XGBoost` learners (`r ref("mlr3learners::LearnerClassifXgboost", "LearnerClassifXgboost")` or `r ref("mlr3learners::LearnerRegrXgboost")`).
+Although formulated model-agnostic, the current `EAGGA` implementation currently only supports `XGBoost` learners (`r ref("mlr3learners::mlr_learners_classif.xgboost", "mlr3learners::LearnerClassifXgboost")` or `r ref("mlr3learners::mlr_learners_regr.xgboost", "mlr3learners::LearnerRegrXgboost")`).
 Note that the XGBoost `"booster"` must be set to `"gbtree"`.
 
 ## Supported Tasks
@@ -202,7 +210,7 @@ Note that the XGBoost `"booster"` must be set to `"gbtree"`.
 `eagga` currently can be used for binary classification and regression tasks.
 This might change in the near future to also include multi-class classification tasks but depends on the concrete {feature,interaction,monotonicity}.detectors used within `eagga` and whether they support multi-class classification.
 Moreover, feature types currently must be integer or numeric (also due to the usage of detectors but anyways required by XGBoost).
-Although categorical features can in principle be one-hot or impact encoded, e.g., via `r ref_pkg("mlr3pipelines")` by using a suitable `r ref("mlr3pipelines::PipeOp", "PipeOp")` and wrapping the pipeop + learner in a `r ref("mlr3pipelines::GraphLearner", "GraphLearner")`, the current `EAGGA` implementation does not support such an encoding.
+Although categorical features can in principle be one-hot or impact encoded, e.g., via `r ref_pkg("mlr3pipelines")` by using a suitable `r ref("mlr3pipelines::PipeOp", "mlr3pipelines::PipeOp")` and wrapping the pipeop + learner in a `r ref("mlr3pipelines::mlr_learners_graph", "mlr3pipelines::GraphLearner")`, the current `EAGGA` implementation does not support such an encoding.
 This behavior might change in the near future.
 If your use case includes categorical features or multi-class classification tasks, please open an issue so that we are aware of it and can work on implementing proper support with higher priority.
 
@@ -213,15 +221,15 @@ As outlined in the paper, the basic building blocks of `EAGGA` are a learner wit
 ### Learner and Search Space
 
 The learner must support the specification of feature selection as well as interaction and monotonicity constraints of features.
-Currently only `XGBoost` learners (`r ref("mlr3learners::LearnerClassifXgboost", "LearnerClassifXgboost")` or `r ref("mlr3learners::LearnerRegrXgboost")`) are supported.
+Currently only `XGBoost` learners (`r ref("mlr3learners::mlr_learners_classif.xgboost", "mlr3learners::LearnerClassifXgboost")` or `r ref("mlr3learners::mlr_learners_regr.xgboost", "mlr3learners::LearnerRegrXgboost")`) are supported.
 
-Feature selection is handled via `r ref_pkg("mlr3pipelines")` making use of `r ref("mlr3pipelines::PipeOpSelect")`.
+Feature selection is handled via `r ref_pkg("mlr3pipelines")` making use of `r ref("mlr3pipelines::mlr_pipeops_select", "mlr3pipelines::PipeOpSelect")`.
 `EAGGA` further makes use of so-called {feature,interaction,monotonicity}.detectors.
-For example, the `r ref("eagga::MonotonicityDetector", "MonotonicityDetector")` is used to detect the sign of a feature if it should be constrained to have a monotone effect on the target.
-To apply such a sign correction, the learner must be configured accordingly, this is handled via `r ref("mlr3pipelines::PipeOpColApply")` which will be configured accordingly during optimization.
-Finally, to make sure nothing weird happens during optimization, features are always sorted alphabetically in the internal data representation via `r ref("eagga::PipeOpSortFeatures")`.
+For example, the `r ref("eagga::MonotonicityDetector", "eagga::MonotonicityDetector")` is used to detect the sign of a feature if it should be constrained to have a monotone effect on the target.
+To apply such a sign correction, the learner must be configured accordingly, this is handled via `r ref("mlr3pipelines::mlr_pipeops_colapply", "mlr3pipelines::PipeOpColApply")` which will be configured accordingly during optimization.
+Finally, to make sure nothing weird happens during optimization, features are always sorted alphabetically in the internal data representation via `r ref("eagga::PipeOpSortFeatures", "eagga::PipeOpSortFeatures")`.
 
-A suitable learner therefore combines all these pipeops and the learner itself in the form of a `r ref("mlr3pipelines::GraphLearner")` and will look like the following (assuming classification):
+A suitable learner therefore combines all these pipeops and the learner itself in the form of a `r ref("mlr3pipelines::mlr_learners_graph", "mlr3pipelines::GraphLearner")` and will look like the following (assuming classification):
 
 ```{r}
 library(mlr3)
@@ -239,7 +247,7 @@ learner$param_set$values$colapply.applicator = function(x) - x
 ```
 
 Note that we have to set the `"classif.xgboost.booster"` hyperparameter to `"gbtree"`.
-Moreover, the function to apply via `r ref("mlr3pipelines::PipeOpColApply", "PipeOpColApply")` must be set to `function(x) - x` (which is responsible for changing the sign of features after having detected the necessity of such a swap via using a monotonicity detector as described above).
+Moreover, the function to apply via `r ref("mlr3pipelines::mlr_pipeops_colapply", "mlr3pipelines::PipeOpColApply")` must be set to `function(x) - x` (which is responsible for changing the sign of features after having detected the necessity of such a swap via using a monotonicity detector as described above).
 
 Users can customize this pipeline building the graph learner but must adhere to the basic structure (`colapply --> select --> sortfeatures --> [custom user block] --> learner`).
 
@@ -271,9 +279,9 @@ search_space = ps(
 ```
 
 This search space specifies that we tuner over `nrounds`, `eta`, `gamma`, `lambda`, `alpha`, `subsample`, `max_depth`, `min_child_weight`, `colsample_bytree` and `colsample_by_level` which are standard hyperparameters of `XGBoost` (for an explanation and description, see e.g., `?xgboost` or https://xgboost.readthedocs.io/en/stable/parameter.html).
-Note that in general it is better to set the upper bound of `nrounds` higher (e.g., around `log(5000)` and the default to `log(500)`) but we use less boosting rounds to speed up the following examples.
+Note that in general it is better to set the upper bound of `nrounds` higher (e.g., around `log(5000)` and the default to `log(500)` but we use less boosting rounds to speed up the following examples.
 
-Additionally, we must specify that we also tune over the feature `selector` and `interaction_constraints` and `monotone_constraints` (we specify these as `r ref("paradox::ParamUty", "ParamUty")` hyperparameters because they are not directly tunable in a standard way).
+Additionally, we must specify that we also tune over the feature `selector` and `interaction_constraints` and `monotone_constraints` (we specify these as `r ref("paradox::ParamUty", "paradox::ParamUty")` hyperparameters because they are not directly tunable in a standard way.
 However, we need to include them into the search space as `eagga` must be able to pass such constraints based on so-called group structures to the learner.
 
 ### Task
@@ -324,9 +332,9 @@ performance_measure = msr("classif.ce")
 
 As `EAGGA` jointly optimizes for performance and interpretability, we also need to pass the interpretability measures (`NF`, `NI` and `NNM` in the paper): the relative number of features used by the model, the relative number of (pariwise) interactions of features in the model and the relative number of non-monotone feature effects.
 
-These measures are implemented via so-called proxy measures (proxy because they actually do not work like standard mlr3 measures and do not operate on a `r ref("mlr3::Prediction", "Prediction")` object but rather are always hard coded to a value of zero but updated and computed within the actual optimization process).
+These measures are implemented via so-called proxy measures (proxy because they actually do not work like standard mlr3 measures and do not operate on a `r ref("mlr3::Prediction", "mlr3::Prediction")` object but rather are always hard coded to a value of zero but updated and computed within the actual optimization process).
 
-For details, see `r ref("eagga::MeasureSelectedFeaturesProxy", "MeasureSelectedFeaturesProxy")`, `r ref("eagga::MeasureSelectedInteractionsProxy", "MeasureSelectedInteractionsProxy")` and `r ref("eagga::MeasureSelectedNonMonotoneProxy", "MeasureSelectedNonMonotoneProxy")`.
+For details, see `r ref("eagga::mlr_measures_selected_features_proxy", "eagga::MeasureSelectedFeaturesProxy")`, `r ref("eagga::mlr_measures_selected_interactions_proxy", "eagga::MeasureSelectedInteractionsProxy")` and `r ref("eagga::mlr_measures_selected_non_monotone_proxy", "eagga::MeasureSelectedNonMonotoneProxy")`.
 
 Again, note that these measures do not do anything meaningful except for when being used in combination with `eagga`.
 
@@ -337,7 +345,7 @@ measures = list(performance_measure, msr("selected_features_proxy"), msr("select
 # Tuning with TunerEAGGA
 
 As we have introduced all building blocks, we can now use `EAGGA` to jointly optimize for performance and interpretability.
-This works by constructing a `r ref("mlr3tuning::TuningInstanceMultiCrit", "TuningInstanceMultiCrit")` and a `r ref("eagga::TunerEAGGA", "TunerEAGGA")`.
+This works by constructing a `r ref("mlr3tuning::TuningInstanceMultiCrit", "mlr3tuning::TuningInstanceMultiCrit")` and a `r ref("eagga::mlr_tuner_eagga", "eagga::TunerEAGGA")`.
 
 ```{r}
 instance = TuningInstanceMultiCrit$new(
@@ -393,7 +401,7 @@ front
 ```
 
 We observe that we found diverse models trading off performance and interpretability to varying degree.
-We can further inspect the group structure of each model (for more details on the `r ref("eagga::GroupStructure", "GroupStructure")` class, see the technical details section below):
+We can further inspect the group structure of each model (for more details on the `r ref("eagga::GroupStructure", "eagga::GroupStructure")` class, see the technical details section below):
 
 ```{r}
 instance$archive$best()[8, ]$groupstructure[[1]]$get_groups()
@@ -408,7 +416,7 @@ instance$archive$best()[8, ]$groupstructure[[1]]$monotone_features
 tells us that `"x1"`, `"x3"` and `"x4"` are constrained to have a monotone (increasing) effect on the feature.
 But wait, didn't we say that in our toy task, `"x1"` has a monotone decreasing effect on the target?
 Yes, but:
-As our `r ref("eagga::MonotonicityDetector", "MonotonicityDetector")` within `EAGGA` detected `"x1"` to have a monotone decreasing effect (if enforced) and we were able to swap the sign of the feature itself to then enforce a monotone increasing effect (and in `EAGGA` we only want to differentiate between unconstrained or monotone increasing feature effects):
+As our `r ref("eagga::MonotonicityDetector", "eagga::MonotonicityDetector")` within `EAGGA` detected `"x1"` to have a monotone decreasing effect (if enforced) and we were able to swap the sign of the feature itself to then enforce a monotone increasing effect (and in `EAGGA` we only want to differentiate between unconstrained or monotone increasing feature effects):
 
 ```{r}
 mlr3misc::get_private(tuner)$.monotonicity_detector$get_sign("x1")
@@ -449,7 +457,7 @@ To make this easier, the following section describes a more automated way.
 # Deciding on a Model and Reconstructing it
 
 Once we have decided on a model (based on a non-dominated hyperparameter configuration and group structure) we prefer, we can "reconstruct" it.
-To do so, we use the `r ref("eagga::reconstruct_eagga_model", "reconstruct_eagga_model")` function and pass the tuning instance, the tuner and the uhash of the model we want to "reconstruct" as logged in the archive:
+To do so, we use the `r ref("eagga::reconstruct_eagga_model", "eagga::reconstruct_eagga_model")` function and pass the tuning instance, the tuner and the uhash of the model we want to "reconstruct" as logged in the archive:
 
 ```{r}
 uhash = instance$archive$best()$uhash[8]
@@ -507,8 +515,8 @@ model$param_set$values$colapply.applicator
 
 # Technical Details
 
-This section is work in progress and will explain technical details of the `r ref("eagga::TunerEAGGA", "TunerEAGGA")`, `r ref("eagga::Probs", "Probs")`, `r ref("eagga::InteractionDetector", "InteractionDetector")`, `r ref("eagga::MonotonicityDetector", "MonotonicityDetector")` and `r ref("eagga::GroupStructure", "GroupStructure")` classes.
-Note that the feature detector is currently implemented within `r ref("eagga::TunerEAGGA", "TunerEAGGA")` directly and not exposed as a standalone class but this might change in the near future.
-The current feature detector is simply based on a `r ref("mlr3filters::FilterInformationGain", "FilterInformationGain")`.
+This section is work in progress and will explain technical details of the `r ref("eagga::mlr_tuner_eagga", "eagga::TunerEAGGA")`, `r ref("eagga::Probs", "eagga::Probs")`, `r ref("eagga::InteractionDetector", "eagga::InteractionDetector")`, `r ref("eagga::MonotonicityDetector", "eagga::MonotonicityDetector")` and `r ref("eagga::GroupStructure", "eagga::GroupStructure")` classes.
+Note that the feature detector is currently implemented within `r ref("eagga::mlr_tuner_eagga", "eagga::TunerEAGGA")` directly and not exposed as a standalone class but this might change in the near future.
+The current feature detector is simply based on a `r ref("mlr3filters::mlr_filters_information_gain", "mlr3filters::FilterInformationGain")`.
 
 # References
